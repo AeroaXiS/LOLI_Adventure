@@ -1,4 +1,5 @@
 #pragma once
+//不应该被实例化的，暂时没有加纯虚函数
 class Body
 {
 private:
