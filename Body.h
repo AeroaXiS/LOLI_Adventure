@@ -50,8 +50,11 @@ private:
 	static Battlefield * pBattlefield;
 	///WaitKeyboard中可能会被疯狂访问的对象，升级成成员函数减少构造析构
 	///std::string keyboardCache;
-	//WaitKeyboard等中可能会被疯狂访问的对象，升级成成员函数减少内存申请
-	char keyboardPressed;
+	///WaitKeyboard等中可能会被疯狂访问的对象，升级成成员函数减少内存申请
+	///char keyboardPressed;
+	///按任意键自带防作死
+	///void WaitKeyboard(void);
+	//以上都用一个全局函数替代了
 private:
 	//战场的数据情况是否可以开战
 	bool IsAllReady(void);
@@ -61,8 +64,6 @@ private:
 	bool ShowState(void);
 	//互相伤害
 	bool Fuck(void);
-	//按任意键自带防作死
-	void WaitKeyboard(void);
 public:
 
 public:

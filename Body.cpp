@@ -80,6 +80,7 @@ bool Battlefield::Fuck(void)
 	return true;
 }
 
+/*
 void Battlefield::WaitKeyboard(void)
 {
 	///std::getline(std::cin, keyboardCache);
@@ -101,6 +102,8 @@ void Battlefield::WaitKeyboard(void)
 		return;
 	}
 }
+*/
+
 
 
 bool Battlefield::ShowState(void)
@@ -133,16 +136,37 @@ bool Battlefield::Start(void)
 		//警告返回战斗失败
 		std::cout << "[错误] 试图在数据不足时进行Battlefield::Start()"
 			<< std::endl;
-		this->WaitKeyboard();
+		WaitAnyKey();
 		return false;
 	}
 
 	//战斗循环，只要没人输就继续
 	while (!this->IsFinshed())
 	{
+		system("cls");
 		this->ShowState();
-		std::cout << "按下回车键下一回合..." << std::endl;
-		this->WaitKeyboard();
+		std::cout << "按键下一回合..." << std::endl;
+
+		//debuging
+		switch (WaitDirectionKey())
+		{
+		case 1:
+			std::cout << "上进入" << std::endl;
+			break;
+		case 2:
+			std::cout << "右进入" << std::endl;
+			break;
+		case 3:
+			std::cout << "下进入" << std::endl;
+			break;
+		case 4:
+			std::cout << "左进入" << std::endl;
+			break;
+		default:
+			std::cout << "不知道怎么进入" << std::endl;
+			break;
+		}
+		
 		this->Fuck();
 	}
 
@@ -152,7 +176,7 @@ bool Battlefield::Start(void)
 		//玩家输了
 		this->ShowState();
 		std::cout << "失败了！" << std::endl;
-		this->WaitKeyboard();
+		WaitAnyKey();
 		return false;
 	}
 	else if (this->monster->IsDead())
@@ -160,14 +184,14 @@ bool Battlefield::Start(void)
 		//玩家赢了
 		this->ShowState();
 		std::cout << "胜利了！" << std::endl;
-		this->WaitKeyboard();
+		WaitAnyKey();
 		return true;
 	}
 	else
 	{
 		//既然跳出了战斗循环但是没有人死，大概不可能的情况
 		std::cout << "[错误] 战场结算出现灵异事件" << std::endl;
-		this->WaitKeyboard();
+		WaitAnyKey();
 		return false;
 	}
 	return false;
