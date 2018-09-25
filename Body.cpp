@@ -80,6 +80,41 @@ bool Battlefield::Fuck(void)
 	return true;
 }
 
+bool Battlefield::Start_Interaction(void)
+{
+	bool quit = false;
+	while (!quit)
+	{
+		//清空
+		system("cls");
+		//打印状态
+		this->ShowState();
+		//打印可以做的事情
+		this->Start_Interaction_ListCommand();
+		//命令
+		switch (_getch())
+		{
+			//攻击
+		case 'A':
+		case 'a':
+			std::cout << "攻击！" << std::endl;
+			WaitAnyKey();
+			this->Fuck();
+			break;
+		default:
+			break;
+		}
+		//死亡判定
+		if (this->IsFinshed()) quit = true;
+	}
+	return false;
+}
+
+void Battlefield::Start_Interaction_ListCommand(void)
+{
+	std::cout << "A-攻击\t" << "M-技能\t" << "B-背包" << std::endl;
+}
+
 /*
 void Battlefield::WaitKeyboard(void)
 {
@@ -140,41 +175,21 @@ bool Battlefield::Start(void)
 		return false;
 	}
 
-	//战斗循环，只要没人输就继续
-	while (!this->IsFinshed())
+	//战斗循环
+	while (this->Start_Interaction())
 	{
-		system("cls");
-		this->ShowState();
-		std::cout << "按键下一回合..." << std::endl;
 
-		//debuging
-		switch (WaitDirectionKey())
-		{
-		case 1:
-			std::cout << "上进入" << std::endl;
-			break;
-		case 2:
-			std::cout << "右进入" << std::endl;
-			break;
-		case 3:
-			std::cout << "下进入" << std::endl;
-			break;
-		case 4:
-			std::cout << "左进入" << std::endl;
-			break;
-		default:
-			std::cout << "不知道怎么进入" << std::endl;
-			break;
-		}
-		
-		this->Fuck();
 	}
+	
+	//让玩家知道结果
+	system("cls");
+	this->ShowState();
 
 	//战斗结束，谁死了，如何结算
 	if (this->player->IsDead())
 	{
 		//玩家输了
-		this->ShowState();
+		//this->ShowState();
 		std::cout << "失败了！" << std::endl;
 		WaitAnyKey();
 		return false;
@@ -182,7 +197,7 @@ bool Battlefield::Start(void)
 	else if (this->monster->IsDead())
 	{
 		//玩家赢了
-		this->ShowState();
+		//this->ShowState();
 		std::cout << "胜利了！" << std::endl;
 		WaitAnyKey();
 		return true;

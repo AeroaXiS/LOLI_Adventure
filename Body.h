@@ -54,7 +54,7 @@ private:
 	///char keyboardPressed;
 	///按任意键自带防作死
 	///void WaitKeyboard(void);
-	//以上都用一个全局函数替代了
+	//以上都用全局函数替代了
 private:
 	//战场的数据情况是否可以开战
 	bool IsAllReady(void);
@@ -64,6 +64,10 @@ private:
 	bool ShowState(void);
 	//互相伤害
 	bool Fuck(void);
+	//互动 互动结束返回false
+	bool Start_Interaction(void);
+	//互动 打印可以进行的操作
+	void Start_Interaction_ListCommand(void);
 public:
 
 public:
