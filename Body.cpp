@@ -27,6 +27,7 @@ void Body::Battle_Suffer(unsigned int damege)
 	{
 		this->health -= damege;
 	}
+	std::cout << WhoAmI() << " ÊÜµ½ " << damege << " ÉËº¦£¡" << std::endl;
 }
 
 bool Body::IsDead(void)
@@ -44,6 +45,16 @@ unsigned int Body::Health(unsigned int health)
 {
 	this->health = health;
 	return this->health;
+}
+
+std::string & Body::WhoAmI(void)
+{
+	return this->name;
+}
+
+void Body::WhoAmI(const char * name)
+{
+	this->name.assign(name);
 }
 
 bool Battlefield::IsAllReady(void)
@@ -98,8 +109,8 @@ bool Battlefield::Start_Interaction(void)
 		case 'A':
 		case 'a':
 			std::cout << "¹¥»÷£¡" << std::endl;
-			WaitAnyKey();
 			this->Fuck();
+			WaitAnyKey();
 			break;
 		default:
 			break;
@@ -145,10 +156,10 @@ bool Battlefield::ShowState(void)
 {
 	using namespace std;
 	cout << "=========================" << endl;
-	cout << "LOLI" << endl
+	cout << player->WhoAmI() << endl
 		<< " HP:\t" << this->player->Health() << endl;
 	cout << "=========================" << endl;
-	cout << "Monster" << endl
+	cout << monster->WhoAmI() << endl
 		<< " HP:\t" << this->monster->Health() << endl;
 	cout << "=========================" << endl;
 	return true;

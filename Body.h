@@ -4,6 +4,7 @@ class Body
 {
 private:
 	unsigned int health;
+	std::string name;
 public:
 
 public:
@@ -19,16 +20,20 @@ public:
 	unsigned int Health(void);
 	//设置当前生命值 并返回 重载
 	unsigned int Health(unsigned int health);
+	//我是谁?返回名字字符串
+	std::string & WhoAmI(void);
+	//我是谁?赋予名字
+	void WhoAmI(const char * name);
 };
 
 class Player : public Body
 {
-
+public:
 };
 
 class Monster : public Body
 {
-
+public:
 };
 
 /*
