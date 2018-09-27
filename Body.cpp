@@ -12,12 +12,13 @@ Body::~Body()
 {
 }
 
-void Body::Battle_Hit(Body * enemy)
+unsigned int Body::Battle_Hit(Body * enemy)
 {
-	enemy->Battle_Suffer(4);
+	//伤害暂时是确定的!
+	return enemy->Battle_Suffer(4);
 }
 
-void Body::Battle_Suffer(unsigned int damege)
+unsigned int Body::Battle_Suffer(unsigned int damege)
 {
 	if (damege >= this->health)
 	{
@@ -27,7 +28,7 @@ void Body::Battle_Suffer(unsigned int damege)
 	{
 		this->health -= damege;
 	}
-	std::cout << WhoAmI() << " 受到 " << damege << " 伤害！" << std::endl;
+	return damege;
 }
 
 bool Body::IsDead(void)
@@ -57,13 +58,18 @@ void Body::WhoAmI(const char * name)
 	this->name.assign(name);
 }
 
-bool Battlefield::IsAllReady(void)
+bool Battlefield::Start_IsReady(void)
 {
+	//正常
 	if (this->player != nullptr &&
 		this->monster != nullptr)
 	{
 		return true;
 	}
+	//警告
+	std::cout << "[错误] 试图在数据不足时进行Battlefield::Start()"
+		<< std::endl;
+	WaitAnyKey();
 	return false;
 }
 
@@ -86,8 +92,23 @@ bool Battlefield::WhoseBattlefield(Player * player, Monster * monster)
 
 bool Battlefield::Fuck(void)
 {
-	this->player->Battle_Hit(this->monster);
-	this->monster->Battle_Hit(this->player);
+	//用于转换的字符串流
+	std::stringstream ss;
+	//获得造成的伤害
+	unsigned int player_hit = this->player->Battle_Hit(this->monster);
+	//转化
+	ss << player->WhoAmI() << "\t对\t" << monster->WhoAmI()
+		<< "\t造成\t" << player_hit << "\t伤害！";
+	//注入
+	this->AddMessage(ss.str().c_str());
+	//清空
+	ss.clear();
+	ss.str("");
+	//再来一遍
+	unsigned int monster_hit = this->monster->Battle_Hit(this->player);
+	ss << monster->WhoAmI() << "\t对\t" << player->WhoAmI()
+		<< "\t造成\t" << monster_hit << "\t伤害！";
+	this->AddMessage(ss.str().c_str());
 	return true;
 }
 
@@ -100,6 +121,9 @@ bool Battlefield::Start_Interaction(void)
 		system("cls");
 		//打印状态
 		this->ShowState();
+		//打印提示
+		this->ShowMessages();
+		std::cout << "=========================" << std::endl;
 		//打印可以做的事情
 		this->Start_Interaction_ListCommand();
 		//命令
@@ -108,9 +132,8 @@ bool Battlefield::Start_Interaction(void)
 			//攻击
 		case 'A':
 		case 'a':
-			std::cout << "攻击！" << std::endl;
+			this->AddMessage("玩家选择攻击！");
 			this->Fuck();
-			WaitAnyKey();
 			break;
 		default:
 			break;
@@ -126,32 +149,6 @@ void Battlefield::Start_Interaction_ListCommand(void)
 	std::cout << "A-攻击\t" << "M-技能\t" << "B-背包" << std::endl;
 }
 
-/*
-void Battlefield::WaitKeyboard(void)
-{
-	///std::getline(std::cin, keyboardCache);
-	keyboardPressed = _getch();
-	if (keyboardPressed == '\r')
-	{
-		//回车有\r\n两部分
-		_getch();
-		return;
-	}
-	else if (keyboardPressed == 0x00 || keyboardPressed == 0xE0)
-	{
-		//拓展字符要想办法抛弃掉后面的部分
-		_getch();
-		return;
-	}
-	else
-	{
-		return;
-	}
-}
-*/
-
-
-
 bool Battlefield::ShowState(void)
 {
 	using namespace std;
@@ -162,6 +159,36 @@ bool Battlefield::ShowState(void)
 	cout << monster->WhoAmI() << endl
 		<< " HP:\t" << this->monster->Health() << endl;
 	cout << "=========================" << endl;
+	return true;
+}
+
+bool Battlefield::ShowMessages(void)
+{
+	int delta;
+	//如果消息数量不足4条
+	if (this->vMessage.size() <= 8)
+	{
+		delta = this->vMessage.size();
+	}
+	else
+	{
+		delta = 9;
+	}
+	for (auto iter = this->vMessage.end() - delta;
+		 iter != vMessage.end(); iter++)
+	{
+		std::cout << *iter << std::endl;
+	}
+	return true;
+}
+
+bool Battlefield::AddMessage(const char * str)
+{
+	if (this->vMessage.size() >= 64)
+	{
+		this->vMessage.erase(this->vMessage.begin());
+	}
+	this->vMessage.emplace_back(str);
 	return true;
 }
 
@@ -177,12 +204,9 @@ bool Battlefield::IsFinshed(void)
 bool Battlefield::Start(void)
 {
 	//首先检测是不是可以开战
-	if (!this->IsAllReady())
+	if (!this->Start_IsReady())
 	{
-		//警告返回战斗失败
-		std::cout << "[错误] 试图在数据不足时进行Battlefield::Start()"
-			<< std::endl;
-		WaitAnyKey();
+		//不可以就返回战斗失败
 		return false;
 	}
 
@@ -191,34 +215,33 @@ bool Battlefield::Start(void)
 	{
 
 	}
-	
-	//让玩家知道结果
-	system("cls");
-	this->ShowState();
 
+	//赢了吗
+	bool isWin = false;
 	//战斗结束，谁死了，如何结算
 	if (this->player->IsDead())
 	{
 		//玩家输了
-		//this->ShowState();
-		std::cout << "失败了！" << std::endl;
-		WaitAnyKey();
-		return false;
+		this->AddMessage("失败了！");
+		isWin = false;
 	}
 	else if (this->monster->IsDead())
 	{
 		//玩家赢了
-		//this->ShowState();
-		std::cout << "胜利了！" << std::endl;
-		WaitAnyKey();
-		return true;
+		this->AddMessage("胜利了！");
+		isWin = true;
 	}
 	else
 	{
 		//既然跳出了战斗循环但是没有人死，大概不可能的情况
 		std::cout << "[错误] 战场结算出现灵异事件" << std::endl;
 		WaitAnyKey();
-		return false;
+		isWin = false;
 	}
-	return false;
+	//让玩家知道结果
+	system("cls");
+	this->ShowState();
+	this->ShowMessages();
+	WaitAnyKey();
+	return isWin;
 }

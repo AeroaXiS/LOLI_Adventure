@@ -10,10 +10,10 @@ public:
 public:
 	Body();
 	virtual ~Body();
-	//攻击
-	void Battle_Hit(Body * enemy);
-	//承受攻击
-	void Battle_Suffer(unsigned int damege);
+	//攻击 返回造成的伤害 由对象的Battle_Suffer()提供
+	unsigned int Battle_Hit(Body * enemy);
+	//承受攻击 返回受到的伤害
+	unsigned int Battle_Suffer(unsigned int damege);
 	//死了吗
 	bool IsDead(void);
 	//获取当前生命值
@@ -53,20 +53,19 @@ private:
 	Monster * monster;
 	//实例对象指针
 	static Battlefield * pBattlefield;
-	///WaitKeyboard中可能会被疯狂访问的对象，升级成成员函数减少构造析构
-	///std::string keyboardCache;
-	///WaitKeyboard等中可能会被疯狂访问的对象，升级成成员函数减少内存申请
-	///char keyboardPressed;
-	///按任意键自带防作死
-	///void WaitKeyboard(void);
-	//以上都用全局函数替代了
+	//"提示框"的文字列表
+	std::vector<std::string> vMessage;
 private:
 	//战场的数据情况是否可以开战
-	bool IsAllReady(void);
+	bool Start_IsReady(void);
 	//是否玩家输了或者怪物死了
 	bool IsFinshed(void);
 	//打印战斗双方的状态
 	bool ShowState(void);
+	//打印提示框的最后8条
+	bool ShowMessages(void);
+	//将提示放入提示列表，上限64条
+	bool AddMessage(const char * str);
 	//互相伤害
 	bool Fuck(void);
 	//互动 互动结束返回false
