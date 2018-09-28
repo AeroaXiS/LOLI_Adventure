@@ -90,7 +90,7 @@ bool Battlefield::WhoseBattlefield(Player * player, Monster * monster)
 	return true;
 }
 
-bool Battlefield::Fuck(void)
+bool Battlefield::AttackRound(void)
 {
 	//用于转换的字符串流
 	std::stringstream ss;
@@ -115,15 +115,30 @@ bool Battlefield::Fuck(void)
 bool Battlefield::Start_Interaction(void)
 {
 	bool quit = false;
+	unsigned int battle_round = 1, prev_battle_round = 1;;
+	std::stringstream ss;
 	while (!quit)
 	{
+		//将现在是第几回合放进提示
+		if (battle_round == prev_battle_round)
+		{
+			//不需要放提示
+		}
+		else
+		{
+			ss.clear();
+			ss.str("");
+			ss << "第\t" << battle_round << "\t回合";
+			this->AddMessage(ss.str().c_str());
+			prev_battle_round = battle_round;
+		}
 		//清空
 		system("cls");
 		//打印状态
 		this->ShowState();
 		//打印提示
 		this->ShowMessages();
-		std::cout << "=========================" << std::endl;
+		this->PrintLine();
 		//打印可以做的事情
 		this->Start_Interaction_ListCommand();
 		//命令
@@ -133,7 +148,9 @@ bool Battlefield::Start_Interaction(void)
 		case 'A':
 		case 'a':
 			this->AddMessage("玩家选择攻击！");
-			this->Fuck();
+			this->AttackRound();
+			//回合数加一
+			battle_round++;
 			break;
 		default:
 			break;
@@ -146,19 +163,19 @@ bool Battlefield::Start_Interaction(void)
 
 void Battlefield::Start_Interaction_ListCommand(void)
 {
-	std::cout << "A-攻击\t" << "M-技能\t" << "B-背包" << std::endl;
+	std::cout << "A-攻击" << std::endl;
 }
 
 bool Battlefield::ShowState(void)
 {
 	using namespace std;
-	cout << "=========================" << endl;
+	this->PrintLine();
 	cout << player->WhoAmI() << endl
 		<< " HP:\t" << this->player->Health() << endl;
-	cout << "=========================" << endl;
+	this->PrintLine();
 	cout << monster->WhoAmI() << endl
 		<< " HP:\t" << this->monster->Health() << endl;
-	cout << "=========================" << endl;
+	this->PrintLine();
 	return true;
 }
 
@@ -199,6 +216,12 @@ bool Battlefield::IsFinshed(void)
 		return true;
 	}
 	return false;
+}
+
+void Battlefield::PrintLine(void)
+{
+	using namespace std;
+	cout << "=================================" << endl;
 }
 
 bool Battlefield::Start(void)

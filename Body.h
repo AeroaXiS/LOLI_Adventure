@@ -56,10 +56,10 @@ private:
 	//"提示框"的文字列表
 	std::vector<std::string> vMessage;
 private:
-	//战场的数据情况是否可以开战
-	bool Start_IsReady(void);
 	//是否玩家输了或者怪物死了
 	bool IsFinshed(void);
+	//打印用来分隔内容的行
+	void PrintLine(void);
 	//打印战斗双方的状态
 	bool ShowState(void);
 	//打印提示框的最后8条
@@ -67,11 +67,13 @@ private:
 	//将提示放入提示列表，上限64条
 	bool AddMessage(const char * str);
 	//互相伤害
-	bool Fuck(void);
+	bool AttackRound(void);
 	//互动 互动结束返回false
 	bool Start_Interaction(void);
 	//互动 打印可以进行的操作
 	void Start_Interaction_ListCommand(void);
+	//战场的数据情况是否可以开战
+	bool Start_IsReady(void);
 public:
 
 public:
