@@ -29,6 +29,8 @@ public:
 	unsigned int GetLevel(void);
 	//设置等级
 	void SetLevel(unsigned int level);
+	//获取生命值上限
+	unsigned int GetMaxHealth(void);
 };
 
 class Player : public Body
@@ -38,22 +40,28 @@ private:
 	double atkModifier;
 public:
 	Player();
-	//根据等级设置声明值上限并返回
-	unsigned int GetSetMaxHealth(void);
+	//根据等级设置生命值上限
+	void SetMaxHealth(void);
+	//将当前生命值设置到生命值上限(初始化
 	unsigned int ResetCurrentHealth(void);
+	//获取攻击力
 	unsigned int GetAtk(double k);
+	//设置攻击力加成
 	void SetAtkModifier(double atkModifier);
+	//获取攻击力加成
 	double GetAtkModifier(void);
 };
 
 class Monster : public Body
 {
 public:
+	//获取攻击力
 	unsigned int GetAtk(double k);
-	//根据等级(设想)设置生命值上限并且返回
-	unsigned int GetSetMaxHealth(void);
+	//模仿玩家 根据等级(设想)设置生命值上限并且返回
+	void SetMaxHealth(void);
 	//按照数值设置生命值上限
-	unsigned int GetSetMaxHealth(unsigned int maxHealth);
+	void SetMaxHealth(unsigned int maxHealth);
+	//将当前生命值设置到生命值上限(初始化
 	unsigned int ResetCurrentHealth(void);
 };
 

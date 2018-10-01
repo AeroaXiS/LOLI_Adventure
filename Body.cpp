@@ -63,6 +63,11 @@ void Body::SetLevel(unsigned int level)
 	this->level = level;
 }
 
+unsigned int Body::GetMaxHealth(void)
+{
+	return this->maxHealth;
+}
+
 bool Battlefield::Start_IsReady(void)
 {
 	//正常
@@ -145,11 +150,11 @@ bool Battlefield::ShowState(void)
 	this->PrintLine();
 	cout << plr->WhoAmI() << "\tLV:" << plr->GetLevel() << endl;
 	cout << " HP:\t" << this->plr->GetCurrentHealth() << " / "
-		<< this->plr->GetSetMaxHealth() << endl;
+		<< this->plr->GetMaxHealth() << endl;
 	this->PrintLine();
 	cout << mst->WhoAmI() << "\tLV:" << mst->GetLevel() << endl;
 	cout << " HP:\t" << this->mst->GetCurrentHealth() << " / "
-		<< this->mst->GetSetMaxHealth() << endl;
+		<< this->mst->GetMaxHealth() << endl;
 	this->PrintLine();
 	return true;
 }
@@ -250,13 +255,13 @@ Player::Player()
 	this->SetLevel(1);
 }
 
-unsigned int Player::GetSetMaxHealth(void)
+void Player::SetMaxHealth(void)
 {
 	//生命值 = k * level + 128
 	const double k = 1.0;
 	this->maxHealth = static_cast<unsigned int>(k * this->level + 128);
-	return this->maxHealth;
 }
+
 
 unsigned int Player::ResetCurrentHealth(void)
 {
@@ -292,17 +297,16 @@ unsigned int Monster::GetAtk(double k)
 	return 4;
 }
 
-unsigned int Monster::GetSetMaxHealth(void)
+void Monster::SetMaxHealth(void)
 {
-	//暂时128
-	this->GetSetMaxHealth(128);
-	return this->maxHealth;
+	//生命值 = k * level + 128
+	const double k = 1.0;
+	this->maxHealth = static_cast<unsigned int>(k * this->level + 128);
 }
 
-unsigned int Monster::GetSetMaxHealth(unsigned int maxHealth)
+void Monster::SetMaxHealth(unsigned int maxHealth)
 {
 	this->maxHealth = maxHealth;
-	return this->maxHealth;
 }
 
 unsigned int Monster::ResetCurrentHealth(void)
