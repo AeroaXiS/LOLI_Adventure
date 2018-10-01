@@ -11,7 +11,7 @@ public:
 	Body();
 	virtual ~Body();
 	//攻击 返回造成的伤害 由对象的Battle_Suffer()提供
-	unsigned int Battle_Hit(Body * enemy);
+	unsigned int Battle_CommonHit(Body * enemy);
 	//承受攻击 返回受到的伤害
 	unsigned int Battle_Suffer(unsigned int damege);
 	//死了吗
@@ -48,9 +48,9 @@ private:
 	{
 	}
 	//战场中的玩家
-	Player * player;
+	Player * plr;
 	//战场中的怪物
-	Monster * monster;
+	Monster * mst;
 	//实例对象指针
 	static Battlefield * pBattlefield;
 	//"提示框"的文字列表
@@ -70,8 +70,6 @@ private:
 	bool AttackRound(void);
 	//互动 互动结束返回false
 	bool Start_Interaction(void);
-	//互动 打印可以进行的操作
-	void Start_Interaction_ListCommand(void);
 	//战场的数据情况是否可以开战
 	bool Start_IsReady(void);
 public:

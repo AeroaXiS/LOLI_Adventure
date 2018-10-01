@@ -12,10 +12,22 @@ Body::~Body()
 {
 }
 
-unsigned int Body::Battle_Hit(Body * enemy)
+unsigned int Body::Battle_CommonHit(Body * enemy)
 {
-	//伤害暂时是确定的!
-	return enemy->Battle_Suffer(4);
+	//攻击力暂时确定 伤害上下浮动20%
+	//暂时无法处理高速随机重复问题
+	if (WhoAmI() == "LOLI")
+	{
+		return enemy->Battle_Suffer(
+			uniform_random(static_cast<unsigned int>(32 - 32 * 0.2),
+						   static_cast<unsigned int>(32 + 32 * 0.2),true));
+	}
+	else
+	{
+		return enemy->Battle_Suffer(
+			uniform_random(static_cast<unsigned int>(32 - 32 * 0.2),
+						   static_cast<unsigned int>(32 + 32 * 0.2)));
+	}
 }
 
 unsigned int Body::Battle_Suffer(unsigned int damege)
@@ -61,8 +73,8 @@ void Body::WhoAmI(const char * name)
 bool Battlefield::Start_IsReady(void)
 {
 	//正常
-	if (this->player != nullptr &&
-		this->monster != nullptr)
+	if (this->plr != nullptr &&
+		this->mst != nullptr)
 	{
 		return true;
 	}
@@ -83,10 +95,10 @@ Battlefield * Battlefield::CreateBattlefield(void)
 	return pBattlefield;
 }
 
-bool Battlefield::WhoseBattlefield(Player * player, Monster * monster)
+bool Battlefield::WhoseBattlefield(Player * plr, Monster * mst)
 {
-	this->player = player;
-	this->monster = monster;
+	this->plr = plr;
+	this->mst = mst;
 	return true;
 }
 
@@ -95,86 +107,53 @@ bool Battlefield::AttackRound(void)
 	//用于转换的字符串流
 	std::stringstream ss;
 	//获得造成的伤害
-	unsigned int player_hit = this->player->Battle_Hit(this->monster);
+	unsigned int plr_hit = this->plr->Battle_CommonHit(this->mst);
 	//转化
-	ss << player->WhoAmI() << "\t对\t" << monster->WhoAmI()
-		<< "\t造成\t" << player_hit << "\t伤害！";
+	ss << plr->WhoAmI() << "\t对\t" << mst->WhoAmI()
+		<< "\t造成\t" << plr_hit << "\t伤害！";
 	//注入
 	this->AddMessage(ss.str().c_str());
 	//清空
 	ss.clear();
 	ss.str("");
 	//再来一遍
-	unsigned int monster_hit = this->monster->Battle_Hit(this->player);
-	ss << monster->WhoAmI() << "\t对\t" << player->WhoAmI()
-		<< "\t造成\t" << monster_hit << "\t伤害！";
+	unsigned int mst_hit = this->mst->Battle_CommonHit(this->plr);
+	ss << mst->WhoAmI() << "\t对\t" << plr->WhoAmI()
+		<< "\t造成\t" << mst_hit << "\t伤害！";
 	this->AddMessage(ss.str().c_str());
 	return true;
 }
 
 bool Battlefield::Start_Interaction(void)
 {
-	bool quit = false;
-	unsigned int battle_round = 1, prev_battle_round = 1;;
-	std::stringstream ss;
-	while (!quit)
-	{
-		//将现在是第几回合放进提示
-		if (battle_round == prev_battle_round)
-		{
-			//不需要放提示
-		}
-		else
-		{
-			ss.clear();
-			ss.str("");
-			ss << "第\t" << battle_round << "\t回合";
-			this->AddMessage(ss.str().c_str());
-			prev_battle_round = battle_round;
-		}
-		//清空
-		system("cls");
-		//打印状态
-		this->ShowState();
-		//打印提示
-		this->ShowMessages();
-		this->PrintLine();
-		//打印可以做的事情
-		this->Start_Interaction_ListCommand();
-		//命令
-		switch (_getch())
-		{
-			//攻击
-		case 'A':
-		case 'a':
-			this->AddMessage("玩家选择攻击！");
-			this->AttackRound();
-			//回合数加一
-			battle_round++;
-			break;
-		default:
-			break;
-		}
-		//死亡判定
-		if (this->IsFinshed()) quit = true;
-	}
-	return false;
-}
-
-void Battlefield::Start_Interaction_ListCommand(void)
-{
+	system("cls");
+	this->ShowState();
+	this->ShowMessages();
 	std::cout << "A-攻击" << std::endl;
+	switch (_getch())
+	{
+	case'a':
+	case'A':
+		this->AttackRound();
+		this->AddMessage("攻击！");
+		if (this->IsFinshed()) return false; //攻击之后战场结束跳出循环
+		else return true;
+		break;
+	default:
+		return true;
+		break;
+	}
 }
 
 bool Battlefield::ShowState(void)
 {
 	using namespace std;
 	this->PrintLine();
-	cout << player->WhoAmI() << endl
-		<< " HP:\t" << this->player->Health() << endl;
+	cout << plr->WhoAmI() << endl
+		<< " HP:\t" << this->plr->Health() << endl;
 	this->PrintLine();
-	cout << monster->WhoAmI() << endl
-		<< " HP:\t" << this->monster->Health() << endl;
+	cout << mst->WhoAmI() << endl
+		<< " HP:\t" << this->mst->Health() << endl;
 	this->PrintLine();
 	return true;
 }
@@ -211,7 +190,7 @@ bool Battlefield::AddMessage(const char * str)
 
 bool Battlefield::IsFinshed(void)
 {
-	if (this->player->IsDead() || this->monster->IsDead())
+	if (this->plr->IsDead() || this->mst->IsDead())
 	{
 		return true;
 	}
@@ -236,19 +215,18 @@ bool Battlefield::Start(void)
 	//战斗循环
 	while (this->Start_Interaction())
 	{
-
 	}
 
 	//赢了吗
 	bool isWin = false;
 	//战斗结束，谁死了，如何结算
-	if (this->player->IsDead())
+	if (this->plr->IsDead())
 	{
 		//玩家输了
 		this->AddMessage("失败了！");
 		isWin = false;
 	}
-	else if (this->monster->IsDead())
+	else if (this->mst->IsDead())
 	{
 		//玩家赢了
 		this->AddMessage("胜利了！");

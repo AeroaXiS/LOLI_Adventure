@@ -70,3 +70,9 @@ int WaitDirectionKey(void)
 		return 0;
 	}
 }
+
+unsigned int uniform_random(unsigned int a, unsigned int b,bool newSeed)
+{
+	if (newSeed) srand(static_cast<unsigned int>(clock()));
+	return rand() % (b - a + 1) + a;
+}
