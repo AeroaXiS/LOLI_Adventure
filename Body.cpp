@@ -117,13 +117,14 @@ bool Battlefield::Start_Interaction(void)
 	system("cls");
 	this->ShowState();
 	this->ShowMessages();
+	this->PrintLine();
 	std::cout << "A-攻击" << std::endl;
 	switch (_getch())
 	{
 	case'a':
 	case'A':
-		this->AttackRound();
 		this->AddMessage("攻击！");
+		this->AttackRound();
 		if (this->IsFinshed()) return false; //攻击之后战场结束跳出循环
 		else return true;
 		break;
