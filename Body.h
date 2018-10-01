@@ -2,11 +2,10 @@
 //不应该被实例化的，暂时没有加纯虚函数
 class Body
 {
-private:
-	unsigned int health;
+protected:
 	std::string name;
-public:
-
+	unsigned int currentHealth, maxHealth;
+	unsigned int level;
 public:
 	Body();
 	virtual ~Body();
@@ -16,16 +15,20 @@ public:
 	unsigned int BattleSuffer(unsigned int damege);
 	//死了吗
 	bool IsDead(void);
-	//获取当前生命值
-	unsigned int Health(void);
-	//设置当前生命值 并返回 重载
-	unsigned int Health(unsigned int health);
+	//将当前生命值设置成生命值上限并返回
+	virtual unsigned int ResetCurrentHealth(void) = 0;
+	//获取当前生命
+	unsigned int GetCurrentHealth(void);
 	//我是谁?返回名字字符串
 	std::string & WhoAmI(void);
 	//我是谁?赋予名字
 	void WhoAmI(const char * name);
 	//计算攻击力 一次函数 随等级变化 k决定幅度
 	virtual unsigned int GetAtk(double k) = 0;
+	//获取等级
+	unsigned int GetLevel(void);
+	//设置等级
+	void SetLevel(unsigned int level);
 };
 
 class Player : public Body
@@ -35,13 +38,23 @@ private:
 	double atkModifier;
 public:
 	Player();
+	//根据等级设置声明值上限并返回
+	unsigned int GetSetMaxHealth(void);
+	unsigned int ResetCurrentHealth(void);
 	unsigned int GetAtk(double k);
+	void SetAtkModifier(double atkModifier);
+	double GetAtkModifier(void);
 };
 
 class Monster : public Body
 {
 public:
 	unsigned int GetAtk(double k);
+	//根据等级(设想)设置生命值上限并且返回
+	unsigned int GetSetMaxHealth(void);
+	//按照数值设置生命值上限
+	unsigned int GetSetMaxHealth(unsigned int maxHealth);
+	unsigned int ResetCurrentHealth(void);
 };
 
 /*

@@ -20,32 +20,27 @@ unsigned int Body::BattleCommonHit(Body * enemy)
 
 unsigned int Body::BattleSuffer(unsigned int damege)
 {
-	if (damege >= this->health)
+	if (damege >= this->currentHealth)
 	{
-		this->health = 0;
+		this->currentHealth = 0;
 	}
 	else
 	{
-		this->health -= damege;
+		this->currentHealth -= damege;
 	}
 	return damege;
 }
 
 bool Body::IsDead(void)
 {
-	if (this->health <= 0) return true;
+	if (this->currentHealth <= 0) return true;
 	return false;
 }
 
-unsigned int Body::Health(void)
-{
-	return this->health;
-}
 
-unsigned int Body::Health(unsigned int health)
+unsigned int Body::GetCurrentHealth(void)
 {
-	this->health = health;
-	return this->health;
+	return this->currentHealth;
 }
 
 std::string & Body::WhoAmI(void)
@@ -56,6 +51,16 @@ std::string & Body::WhoAmI(void)
 void Body::WhoAmI(const char * name)
 {
 	this->name.assign(name);
+}
+
+unsigned int Body::GetLevel(void)
+{
+	return this->level;
+}
+
+void Body::SetLevel(unsigned int level)
+{
+	this->level = level;
 }
 
 bool Battlefield::Start_IsReady(void)
@@ -138,11 +143,13 @@ bool Battlefield::ShowState(void)
 {
 	using namespace std;
 	this->PrintLine();
-	cout << plr->WhoAmI() << endl
-		<< " HP:\t" << this->plr->Health() << endl;
+	cout << plr->WhoAmI() << "\tLV:" << plr->GetLevel() << endl;
+	cout << " HP:\t" << this->plr->GetCurrentHealth() << " / "
+		<< this->plr->GetSetMaxHealth() << endl;
 	this->PrintLine();
-	cout << mst->WhoAmI() << endl
-		<< " HP:\t" << this->mst->Health() << endl;
+	cout << mst->WhoAmI() << "\tLV:" << mst->GetLevel() << endl;
+	cout << " HP:\t" << this->mst->GetCurrentHealth() << " / "
+		<< this->mst->GetSetMaxHealth() << endl;
 	this->PrintLine();
 	return true;
 }
@@ -239,18 +246,67 @@ bool Battlefield::Start(void)
 
 Player::Player()
 {
-	atkModifier = 1.0;
+	this->SetAtkModifier(1.0);
+	this->SetLevel(1);
+}
+
+unsigned int Player::GetSetMaxHealth(void)
+{
+	//生命值 = k * level + 128
+	const double k = 1.0;
+	this->maxHealth = static_cast<unsigned int>(k * this->level + 128);
+	return this->maxHealth;
+}
+
+unsigned int Player::ResetCurrentHealth(void)
+{
+	this->currentHealth = this->maxHealth;
+	return this->currentHealth;
 }
 
 unsigned int Player::GetAtk(double k)
 {
 	//基础攻击力4
-	//默认等级5
-	return static_cast<unsigned int>(k * 5 + 4);
+	return static_cast<unsigned int>(
+		(k * this->level + 4)*(this->atkModifier)
+		);
 }
+
+void Player::SetAtkModifier(double atkModifier)
+{
+	//不可以小于等于0
+	if (atkModifier <= 0) return;
+	this->atkModifier = atkModifier;
+}
+
+double Player::GetAtkModifier(void)
+{
+	return this->atkModifier;
+}
+
+
 
 unsigned int Monster::GetAtk(double k)
 {
 	//默认4
 	return 4;
+}
+
+unsigned int Monster::GetSetMaxHealth(void)
+{
+	//暂时128
+	this->GetSetMaxHealth(128);
+	return this->maxHealth;
+}
+
+unsigned int Monster::GetSetMaxHealth(unsigned int maxHealth)
+{
+	this->maxHealth = maxHealth;
+	return this->maxHealth;
+}
+
+unsigned int Monster::ResetCurrentHealth(void)
+{
+	this->currentHealth = maxHealth;
+	return this->currentHealth;
 }
