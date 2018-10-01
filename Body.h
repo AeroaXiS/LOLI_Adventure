@@ -11,9 +11,9 @@ public:
 	Body();
 	virtual ~Body();
 	//攻击 返回造成的伤害 由对象的Battle_Suffer()提供
-	unsigned int Battle_CommonHit(Body * enemy);
+	unsigned int BattleCommonHit(Body * enemy);
 	//承受攻击 返回受到的伤害
-	unsigned int Battle_Suffer(unsigned int damege);
+	unsigned int BattleSuffer(unsigned int damege);
 	//死了吗
 	bool IsDead(void);
 	//获取当前生命值
@@ -24,16 +24,24 @@ public:
 	std::string & WhoAmI(void);
 	//我是谁?赋予名字
 	void WhoAmI(const char * name);
+	//计算攻击力 一次函数 随等级变化 k决定幅度
+	virtual unsigned int GetAtk(double k) = 0;
 };
 
 class Player : public Body
 {
+private:
+	//装备的攻击力加成 例如 x1.001
+	double atkModifier;
 public:
+	Player();
+	unsigned int GetAtk(double k);
 };
 
 class Monster : public Body
 {
 public:
+	unsigned int GetAtk(double k);
 };
 
 /*

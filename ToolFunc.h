@@ -8,5 +8,10 @@ void WaitAnyKey(void);
 int WaitDirectionKey(void);
 
 //在区间[a,b]内平均分布的随机 a小b大 只能是正整数
-//1ms内高速访问会爆炸
-unsigned int uniform_random(unsigned int a, unsigned int b, bool newSeed = false);
+unsigned int UniformRandom(unsigned int a, unsigned int b);
+
+//给uniform_random()新种子
+void UniformRandomSrand(void);
+
+//基于uniform_random()的范围浮动 如6为中间值 上下浮动50%为随机[3,3]
+unsigned int RangeUniformRandom(unsigned int mid, double percent);

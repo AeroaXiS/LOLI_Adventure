@@ -12,25 +12,13 @@ Body::~Body()
 {
 }
 
-unsigned int Body::Battle_CommonHit(Body * enemy)
+unsigned int Body::BattleCommonHit(Body * enemy)
 {
-	//攻击力暂时确定 伤害上下浮动20%
-	//暂时无法处理高速随机重复问题
-	if (WhoAmI() == "LOLI")
-	{
-		return enemy->Battle_Suffer(
-			uniform_random(static_cast<unsigned int>(32 - 32 * 0.2),
-						   static_cast<unsigned int>(32 + 32 * 0.2),true));
-	}
-	else
-	{
-		return enemy->Battle_Suffer(
-			uniform_random(static_cast<unsigned int>(32 - 32 * 0.2),
-						   static_cast<unsigned int>(32 + 32 * 0.2)));
-	}
+	//默认防御力2
+	return enemy->BattleSuffer(RangeUniformRandom(this->GetAtk(1), 0.2));
 }
 
-unsigned int Body::Battle_Suffer(unsigned int damege)
+unsigned int Body::BattleSuffer(unsigned int damege)
 {
 	if (damege >= this->health)
 	{
@@ -107,7 +95,7 @@ bool Battlefield::AttackRound(void)
 	//用于转换的字符串流
 	std::stringstream ss;
 	//获得造成的伤害
-	unsigned int plr_hit = this->plr->Battle_CommonHit(this->mst);
+	unsigned int plr_hit = this->plr->BattleCommonHit(this->mst);
 	//转化
 	ss << plr->WhoAmI() << "\t对\t" << mst->WhoAmI()
 		<< "\t造成\t" << plr_hit << "\t伤害！";
@@ -117,7 +105,7 @@ bool Battlefield::AttackRound(void)
 	ss.clear();
 	ss.str("");
 	//再来一遍
-	unsigned int mst_hit = this->mst->Battle_CommonHit(this->plr);
+	unsigned int mst_hit = this->mst->BattleCommonHit(this->plr);
 	ss << mst->WhoAmI() << "\t对\t" << plr->WhoAmI()
 		<< "\t造成\t" << mst_hit << "\t伤害！";
 	this->AddMessage(ss.str().c_str());
@@ -215,6 +203,7 @@ bool Battlefield::Start(void)
 	//战斗循环
 	while (this->Start_Interaction())
 	{
+		UniformRandomSrand();
 	}
 
 	//赢了吗
@@ -245,4 +234,22 @@ bool Battlefield::Start(void)
 	this->ShowMessages();
 	WaitAnyKey();
 	return isWin;
+}
+
+Player::Player()
+{
+	atkModifier = 1.0;
+}
+
+unsigned int Player::GetAtk(double k)
+{
+	//基础攻击力4
+	//默认等级5
+	return static_cast<unsigned int>(k * 5 + 4);
+}
+
+unsigned int Monster::GetAtk(double k)
+{
+	//默认4
+	return 4;
 }

@@ -71,8 +71,19 @@ int WaitDirectionKey(void)
 	}
 }
 
-unsigned int uniform_random(unsigned int a, unsigned int b,bool newSeed)
+unsigned int UniformRandom(unsigned int a, unsigned int b)
 {
-	if (newSeed) srand(static_cast<unsigned int>(clock()));
 	return rand() % (b - a + 1) + a;
+}
+
+void UniformRandomSrand(void)
+{
+	srand(static_cast<unsigned int>(clock()));
+}
+
+unsigned int RangeUniformRandom(unsigned int mid, double percent)
+{
+	return UniformRandom(
+		static_cast<unsigned int>(mid - mid * percent),
+		static_cast<unsigned int>(mid + mid * percent));
 }
