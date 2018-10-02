@@ -14,7 +14,6 @@ Body::~Body()
 
 unsigned int Body::BattleCommonHit(Body * enemy)
 {
-	//默认防御力2
 	return enemy->BattleSuffer(RangeUniformRandom(this->GetAtk(1), 0.2));
 }
 
