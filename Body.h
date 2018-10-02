@@ -38,6 +38,10 @@ class Player : public Body
 private:
 	//装备的攻击力加成 例如 x1.001
 	double atkModifier;
+	//持有经验值
+	unsigned long exp;
+private:
+
 public:
 	Player();
 	//根据等级设置生命值上限
@@ -50,10 +54,23 @@ public:
 	void SetAtkModifier(double atkModifier);
 	//获取攻击力加成
 	double GetAtkModifier(void);
+	//升级 返回升级后的等级
+	unsigned int LevelUp(void);
+	//若经验足够则升级返回真，否则不升级返回假
+	bool IsAbleToLevelUp(void);
+	//返回升级所需经验值
+	unsigned long ExpNeed(void);
+	//返回当前经验值
+	unsigned long ExpHave(void);
+	//获得经验 返回当前经验
+	unsigned long AwardExp(unsigned long quantity);
 };
 
 class Monster : public Body
 {
+private:
+	//掉落的经验值
+	unsigned long expDrop;
 public:
 	//获取攻击力
 	unsigned int GetAtk(double k);
@@ -63,6 +80,10 @@ public:
 	void SetMaxHealth(unsigned int maxHealth);
 	//将当前生命值设置到生命值上限(初始化
 	unsigned int ResetCurrentHealth(void);
+	//获取可以掉落的经验值
+	unsigned long GetExpDrop(void);
+	//设置可以掉落的经验值
+	void SetExpDrop(unsigned long expDrop);
 };
 
 /*

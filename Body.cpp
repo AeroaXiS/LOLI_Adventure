@@ -148,7 +148,8 @@ bool Battlefield::ShowState(void)
 {
 	using namespace std;
 	this->PrintLine();
-	cout << plr->WhoAmI() << "\tLV:" << plr->GetLevel() << endl;
+	cout << plr->WhoAmI() << "\tLV:" << plr->GetLevel()
+		<<" Exp:"<<plr->ExpHave()<<" / "<<plr->ExpNeed()<< endl;
 	cout << " HP:\t" << this->plr->GetCurrentHealth() << " / "
 		<< this->plr->GetMaxHealth() << endl;
 	this->PrintLine();
@@ -201,17 +202,25 @@ bool Battlefield::IsFinshed(void)
 void Battlefield::PrintLine(void)
 {
 	using namespace std;
-	cout << "=================================" << endl;
+	cout << 
+		"================================================================" 
+		<< endl;
 }
 
 bool Battlefield::Start(void)
 {
+	std::stringstream ss;
+
 	//首先检测是不是可以开战
 	if (!this->Start_IsReady())
 	{
 		//不可以就返回战斗失败
 		return false;
 	}
+
+	//怪物进场宣言
+	ss << "遇到了" << this->mst->GetLevel() << "级的" << this->mst->WhoAmI();
+	this->AddMessage(ss.str().c_str());
 
 	//战斗循环
 	while (this->Start_Interaction())
@@ -221,7 +230,6 @@ bool Battlefield::Start(void)
 
 	//赢了吗
 	bool isWin = false;
-	//战斗结束，谁死了，如何结算
 	if (this->plr->IsDead())
 	{
 		//玩家输了
@@ -232,6 +240,12 @@ bool Battlefield::Start(void)
 	{
 		//玩家赢了
 		this->AddMessage("胜利了！");
+		//加经验
+		plr->AwardExp(mst->GetExpDrop());
+		ss.clear();
+		ss.str("");
+		ss << "获得了 " << mst->GetExpDrop() << " 点经验";
+		this->AddMessage(ss.str().c_str());
 		isWin = true;
 	}
 	else
@@ -241,6 +255,16 @@ bool Battlefield::Start(void)
 		WaitAnyKey();
 		isWin = false;
 	}
+
+	//循环检测升级
+	while (plr->IsAbleToLevelUp())
+	{
+		ss.clear();
+		ss.str("");
+		ss << "等级上升到 " << plr->LevelUp() << " 级！";
+		this->AddMessage(ss.str().c_str());
+	}
+
 	//让玩家知道结果
 	system("cls");
 	this->ShowState();
@@ -253,6 +277,7 @@ Player::Player()
 {
 	this->SetAtkModifier(1.0);
 	this->SetLevel(1);
+	this->exp = 0;
 }
 
 void Player::SetMaxHealth(void)
@@ -289,6 +314,38 @@ double Player::GetAtkModifier(void)
 	return this->atkModifier;
 }
 
+unsigned int Player::LevelUp(void)
+{
+	this->level++;
+	return this->level;
+}
+
+bool Player::IsAbleToLevelUp(void)
+{
+	if (exp >= this->ExpNeed())
+	{
+		return true;
+	}
+	return false;
+}
+
+unsigned long Player::ExpNeed(void)
+{
+	//到下一等级所需经验值计算公式 16x^2 + 128
+	unsigned int x = this->level - 1;
+	return (x * x * 256 + 128);
+}
+
+unsigned long Player::ExpHave(void)
+{
+	return this->exp;
+}
+
+unsigned long Player::AwardExp(unsigned long quantity)
+{
+	this->exp += quantity;
+	return this->exp;
+}
 
 
 unsigned int Monster::GetAtk(double k)
@@ -313,4 +370,14 @@ unsigned int Monster::ResetCurrentHealth(void)
 {
 	this->currentHealth = maxHealth;
 	return this->currentHealth;
+}
+
+unsigned long Monster::GetExpDrop(void)
+{
+	return this->expDrop;
+}
+
+void Monster::SetExpDrop(unsigned long expDrop)
+{
+	this->expDrop = expDrop;
 }
