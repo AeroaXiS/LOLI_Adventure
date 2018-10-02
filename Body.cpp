@@ -14,7 +14,7 @@ Body::~Body()
 
 unsigned int Body::BattleCommonHit(Body * enemy)
 {
-	//Ä¬ÈÏ·ÀÓùÁ¦2
+	//é»˜è®¤é˜²å¾¡åŠ›2
 	return enemy->BattleSuffer(RangeUniformRandom(this->GetAtk(1), 0.2));
 }
 
@@ -70,14 +70,14 @@ unsigned int Body::GetMaxHealth(void)
 
 bool Battlefield::Start_IsReady(void)
 {
-	//Õı³£
+	//æ­£å¸¸
 	if (this->plr != nullptr &&
 		this->mst != nullptr)
 	{
 		return true;
 	}
-	//¾¯¸æ
-	std::cout << "[´íÎó] ÊÔÍ¼ÔÚÊı¾İ²»×ãÊ±½øĞĞBattlefield::Start()"
+	//è­¦å‘Š
+	std::cout << "[é”™è¯¯] è¯•å›¾åœ¨æ•°æ®ä¸è¶³æ—¶è¿›è¡ŒBattlefield::Start()"
 		<< std::endl;
 	WaitAnyKey();
 	return false;
@@ -102,22 +102,22 @@ bool Battlefield::WhoseBattlefield(Player * plr, Monster * mst)
 
 bool Battlefield::AttackRound(void)
 {
-	//ÓÃÓÚ×ª»»µÄ×Ö·û´®Á÷
+	//ç”¨äºè½¬æ¢çš„å­—ç¬¦ä¸²æµ
 	std::stringstream ss;
-	//»ñµÃÔì³ÉµÄÉËº¦
+	//è·å¾—é€ æˆçš„ä¼¤å®³
 	unsigned int plr_hit = this->plr->BattleCommonHit(this->mst);
-	//×ª»¯
-	ss << plr->WhoAmI() << "\t¶Ô\t" << mst->WhoAmI()
-		<< "\tÔì³É\t" << plr_hit << "\tÉËº¦£¡";
-	//×¢Èë
+	//è½¬åŒ–
+	ss << plr->WhoAmI() << "\tå¯¹\t" << mst->WhoAmI()
+		<< "\té€ æˆ\t" << plr_hit << "\tä¼¤å®³ï¼";
+	//æ³¨å…¥
 	this->AddMessage(ss.str().c_str());
-	//Çå¿Õ
+	//æ¸…ç©º
 	ss.clear();
 	ss.str("");
-	//ÔÙÀ´Ò»±é
+	//å†æ¥ä¸€é
 	unsigned int mst_hit = this->mst->BattleCommonHit(this->plr);
-	ss << mst->WhoAmI() << "\t¶Ô\t" << plr->WhoAmI()
-		<< "\tÔì³É\t" << mst_hit << "\tÉËº¦£¡";
+	ss << mst->WhoAmI() << "\tå¯¹\t" << plr->WhoAmI()
+		<< "\té€ æˆ\t" << mst_hit << "\tä¼¤å®³ï¼";
 	this->AddMessage(ss.str().c_str());
 	return true;
 }
@@ -128,14 +128,14 @@ bool Battlefield::Start_Interaction(void)
 	this->ShowState();
 	this->ShowMessages();
 	this->PrintLine();
-	std::cout << "A-¹¥»÷" << std::endl;
+	std::cout << "A-æ”»å‡»" << std::endl;
 	switch (_getch())
 	{
 	case'a':
 	case'A':
-		this->AddMessage("¹¥»÷£¡");
+		this->AddMessage("æ”»å‡»ï¼");
 		this->AttackRound();
-		if (this->IsFinshed()) return false; //¹¥»÷Ö®ºóÕ½³¡½áÊøÌø³öÑ­»·
+		if (this->IsFinshed()) return false; //æ”»å‡»ä¹‹åæˆ˜åœºç»“æŸè·³å‡ºå¾ªç¯
 		else return true;
 		break;
 	default:
@@ -163,7 +163,7 @@ bool Battlefield::ShowState(void)
 bool Battlefield::ShowMessages(void)
 {
 	int delta;
-	//Èç¹ûÏûÏ¢ÊıÁ¿²»×ã4Ìõ
+	//å¦‚æœæ¶ˆæ¯æ•°é‡ä¸è¶³8æ¡
 	if (this->vMessage.size() <= 8)
 	{
 		delta = this->vMessage.size();
@@ -211,61 +211,61 @@ bool Battlefield::Start(void)
 {
 	std::stringstream ss;
 
-	//Ê×ÏÈ¼ì²âÊÇ²»ÊÇ¿ÉÒÔ¿ªÕ½
+	//é¦–å…ˆæ£€æµ‹æ˜¯ä¸æ˜¯å¯ä»¥å¼€æˆ˜
 	if (!this->Start_IsReady())
 	{
-		//²»¿ÉÒÔ¾Í·µ»ØÕ½¶·Ê§°Ü
+		//ä¸å¯ä»¥å°±è¿”å›æˆ˜æ–—å¤±è´¥
 		return false;
 	}
 
-	//¹ÖÎï½ø³¡ĞûÑÔ
-	ss << "Óöµ½ÁË" << this->mst->GetLevel() << "¼¶µÄ" << this->mst->WhoAmI();
+	//æ€ªç‰©è¿›åœºå®£è¨€
+	ss << "é‡åˆ°äº†" << this->mst->GetLevel() << "çº§çš„" << this->mst->WhoAmI();
 	this->AddMessage(ss.str().c_str());
 
-	//Õ½¶·Ñ­»·
+	//æˆ˜æ–—å¾ªç¯
 	while (this->Start_Interaction())
 	{
 		UniformRandomSrand();
 	}
 
-	//Ó®ÁËÂğ
+	//èµ¢äº†å—
 	bool isWin = false;
 	if (this->plr->IsDead())
 	{
-		//Íæ¼ÒÊäÁË
-		this->AddMessage("Ê§°ÜÁË£¡");
+		//ç©å®¶è¾“äº†
+		this->AddMessage("å¤±è´¥äº†ï¼");
 		isWin = false;
 	}
 	else if (this->mst->IsDead())
 	{
-		//Íæ¼ÒÓ®ÁË
-		this->AddMessage("Ê¤ÀûÁË£¡");
-		//¼Ó¾­Ñé
+		//ç©å®¶èµ¢äº†
+		this->AddMessage("èƒœåˆ©äº†ï¼");
+		//åŠ ç»éªŒ
 		plr->AwardExp(mst->GetExpDrop());
 		ss.clear();
 		ss.str("");
-		ss << "»ñµÃÁË " << mst->GetExpDrop() << " µã¾­Ñé";
+		ss << "è·å¾—äº† " << mst->GetExpDrop() << " ç‚¹ç»éªŒ";
 		this->AddMessage(ss.str().c_str());
 		isWin = true;
 	}
 	else
 	{
-		//¼ÈÈ»Ìø³öÁËÕ½¶·Ñ­»·µ«ÊÇÃ»ÓĞÈËËÀ£¬´ó¸Å²»¿ÉÄÜµÄÇé¿ö
-		std::cout << "[´íÎó] Õ½³¡½áËã³öÏÖÁéÒìÊÂ¼ş" << std::endl;
+		//æ—¢ç„¶è·³å‡ºäº†æˆ˜æ–—å¾ªç¯ä½†æ˜¯æ²¡æœ‰äººæ­»ï¼Œå¤§æ¦‚ä¸å¯èƒ½çš„æƒ…å†µ
+		std::cout << "[é”™è¯¯] æˆ˜åœºç»“ç®—å‡ºç°çµå¼‚äº‹ä»¶" << std::endl;
 		WaitAnyKey();
 		isWin = false;
 	}
 
-	//Ñ­»·¼ì²âÉı¼¶
+	//å¾ªç¯æ£€æµ‹å‡çº§
 	while (plr->IsAbleToLevelUp())
 	{
 		ss.clear();
 		ss.str("");
-		ss << "µÈ¼¶ÉÏÉıµ½ " << plr->LevelUp() << " ¼¶£¡";
+		ss << "ç­‰çº§ä¸Šå‡åˆ° " << plr->LevelUp() << " çº§ï¼";
 		this->AddMessage(ss.str().c_str());
 	}
 
-	//ÈÃÍæ¼ÒÖªµÀ½á¹û
+	//è®©ç©å®¶çŸ¥é“ç»“æœ
 	system("cls");
 	this->ShowState();
 	this->ShowMessages();
@@ -282,7 +282,7 @@ Player::Player()
 
 void Player::SetMaxHealth(void)
 {
-	//ÉúÃüÖµ = k * level + 128
+	//ç”Ÿå‘½å€¼ = k * level + 128
 	const double k = 1.0;
 	this->maxHealth = static_cast<unsigned int>(k * this->level + 128);
 }
@@ -296,7 +296,7 @@ unsigned int Player::ResetCurrentHealth(void)
 
 unsigned int Player::GetAtk(double k)
 {
-	//»ù´¡¹¥»÷Á¦4
+	//åŸºç¡€æ”»å‡»åŠ›4
 	return static_cast<unsigned int>(
 		(k * this->level + 4)*(this->atkModifier)
 		);
@@ -304,7 +304,7 @@ unsigned int Player::GetAtk(double k)
 
 void Player::SetAtkModifier(double atkModifier)
 {
-	//²»¿ÉÒÔĞ¡ÓÚµÈÓÚ0
+	//ä¸å¯ä»¥å°äºç­‰äº0
 	if (atkModifier <= 0) return;
 	this->atkModifier = atkModifier;
 }
@@ -331,7 +331,7 @@ bool Player::IsAbleToLevelUp(void)
 
 unsigned long Player::ExpNeed(void)
 {
-	//µ½ÏÂÒ»µÈ¼¶ËùĞè¾­ÑéÖµ¼ÆËã¹«Ê½ 16x^2 + 128
+	//åˆ°ä¸‹ä¸€ç­‰çº§æ‰€éœ€ç»éªŒå€¼è®¡ç®—å…¬å¼ 16x^2 + 128
 	unsigned int x = this->level - 1;
 	return (x * x * 256 + 128);
 }
@@ -350,13 +350,13 @@ unsigned long Player::AwardExp(unsigned long quantity)
 
 unsigned int Monster::GetAtk(double k)
 {
-	//Ä¬ÈÏ4
+	//é»˜è®¤4
 	return 4;
 }
 
 void Monster::SetMaxHealth(void)
 {
-	//ÉúÃüÖµ = k * level + 128
+	//ç”Ÿå‘½å€¼ = k * level + 128
 	const double k = 1.0;
 	this->maxHealth = static_cast<unsigned int>(k * this->level + 128);
 }
