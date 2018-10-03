@@ -3,9 +3,9 @@
 class Body
 {
 protected:
-	std::string name;
-	unsigned int currentHealth, maxHealth;
-	unsigned int level;
+	std::string strName;
+	unsigned int unCurrentHealth, unMaxHealth;
+	unsigned int unLevel;
 public:
 	Body();
 	virtual ~Body();
@@ -37,9 +37,9 @@ class Player : public Body
 {
 private:
 	//装备的攻击力加成 例如 x1.001
-	double atkModifier;
+	double dAtkModifier;
 	//持有经验值
-	unsigned long exp;
+	unsigned long ulExp;
 private:
 
 public:
@@ -70,7 +70,7 @@ class Monster : public Body
 {
 private:
 	//掉落的经验值
-	unsigned long expDrop;
+	unsigned long ulExpDrop;
 public:
 	//获取攻击力
 	unsigned int GetAtk(double k);
@@ -98,9 +98,9 @@ private:
 	{
 	}
 	//战场中的玩家
-	Player * plr;
+	Player * pPlayer;
 	//战场中的怪物
-	Monster * mst;
+	Monster * pMonster;
 	//实例对象指针
 	static Battlefield * pBattlefield;
 	//"提示框"的文字列表

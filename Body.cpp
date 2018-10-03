@@ -14,69 +14,70 @@ Body::~Body()
 
 unsigned int Body::BattleCommonHit(Body * enemy)
 {
+	//Ä¬ÈÏ·ÀÓùÁ¦2
 	return enemy->BattleSuffer(RangeUniformRandom(this->GetAtk(1), 0.2));
 }
 
 unsigned int Body::BattleSuffer(unsigned int damege)
 {
-	if (damege >= this->currentHealth)
+	if (damege >= this->unCurrentHealth)
 	{
-		this->currentHealth = 0;
+		this->unCurrentHealth = 0;
 	}
 	else
 	{
-		this->currentHealth -= damege;
+		this->unCurrentHealth -= damege;
 	}
 	return damege;
 }
 
 bool Body::IsDead(void)
 {
-	if (this->currentHealth <= 0) return true;
+	if (this->unCurrentHealth <= 0) return true;
 	return false;
 }
 
 
 unsigned int Body::GetCurrentHealth(void)
 {
-	return this->currentHealth;
+	return this->unCurrentHealth;
 }
 
 std::string & Body::WhoAmI(void)
 {
-	return this->name;
+	return this->strName;
 }
 
 void Body::WhoAmI(const char * name)
 {
-	this->name.assign(name);
+	this->strName.assign(name);
 }
 
 unsigned int Body::GetLevel(void)
 {
-	return this->level;
+	return this->unLevel;
 }
 
 void Body::SetLevel(unsigned int level)
 {
-	this->level = level;
+	this->unLevel = level;
 }
 
 unsigned int Body::GetMaxHealth(void)
 {
-	return this->maxHealth;
+	return this->unMaxHealth;
 }
 
 bool Battlefield::Start_IsReady(void)
 {
-	//æ­£å¸¸
-	if (this->plr != nullptr &&
-		this->mst != nullptr)
+	//Õı³£
+	if (this->pPlayer != nullptr &&
+		this->pMonster != nullptr)
 	{
 		return true;
 	}
-	//è­¦å‘Š
-	std::cout << "[é”™è¯¯] è¯•å›¾åœ¨æ•°æ®ä¸è¶³æ—¶è¿›è¡ŒBattlefield::Start()"
+	//¾¯¸æ
+	std::cout << "[´íÎó] ÊÔÍ¼ÔÚÊı¾İ²»×ãÊ±½øĞĞBattlefield::Start()"
 		<< std::endl;
 	WaitAnyKey();
 	return false;
@@ -94,29 +95,29 @@ Battlefield * Battlefield::CreateBattlefield(void)
 
 bool Battlefield::WhoseBattlefield(Player * plr, Monster * mst)
 {
-	this->plr = plr;
-	this->mst = mst;
+	this->pPlayer = plr;
+	this->pMonster = mst;
 	return true;
 }
 
 bool Battlefield::AttackRound(void)
 {
-	//ç”¨äºè½¬æ¢çš„å­—ç¬¦ä¸²æµ
+	//ÓÃÓÚ×ª»»µÄ×Ö·û´®Á÷
 	std::stringstream ss;
-	//è·å¾—é€ æˆçš„ä¼¤å®³
-	unsigned int plr_hit = this->plr->BattleCommonHit(this->mst);
-	//è½¬åŒ–
-	ss << plr->WhoAmI() << "\tå¯¹\t" << mst->WhoAmI()
-		<< "\té€ æˆ\t" << plr_hit << "\tä¼¤å®³ï¼";
-	//æ³¨å…¥
+	//»ñµÃÔì³ÉµÄÉËº¦
+	unsigned int plr_hit = this->pPlayer->BattleCommonHit(this->pMonster);
+	//×ª»¯
+	ss << pPlayer->WhoAmI() << "\t¶Ô\t" << pMonster->WhoAmI()
+		<< "\tÔì³É\t" << plr_hit << "\tÉËº¦£¡";
+	//×¢Èë
 	this->AddMessage(ss.str().c_str());
-	//æ¸…ç©º
+	//Çå¿Õ
 	ss.clear();
 	ss.str("");
-	//å†æ¥ä¸€é
-	unsigned int mst_hit = this->mst->BattleCommonHit(this->plr);
-	ss << mst->WhoAmI() << "\tå¯¹\t" << plr->WhoAmI()
-		<< "\té€ æˆ\t" << mst_hit << "\tä¼¤å®³ï¼";
+	//ÔÙÀ´Ò»±é
+	unsigned int mst_hit = this->pMonster->BattleCommonHit(this->pPlayer);
+	ss << pMonster->WhoAmI() << "\t¶Ô\t" << pPlayer->WhoAmI()
+		<< "\tÔì³É\t" << mst_hit << "\tÉËº¦£¡";
 	this->AddMessage(ss.str().c_str());
 	return true;
 }
@@ -127,14 +128,14 @@ bool Battlefield::Start_Interaction(void)
 	this->ShowState();
 	this->ShowMessages();
 	this->PrintLine();
-	std::cout << "A-æ”»å‡»" << std::endl;
+	std::cout << "A-¹¥»÷" << std::endl;
 	switch (_getch())
 	{
 	case'a':
 	case'A':
-		this->AddMessage("æ”»å‡»ï¼");
+		this->AddMessage("¹¥»÷£¡");
 		this->AttackRound();
-		if (this->IsFinshed()) return false; //æ”»å‡»ä¹‹åæˆ˜åœºç»“æŸè·³å‡ºå¾ªç¯
+		if (this->IsFinshed()) return false; //¹¥»÷Ö®ºóÕ½³¡½áÊøÌø³öÑ­»·
 		else return true;
 		break;
 	default:
@@ -147,14 +148,14 @@ bool Battlefield::ShowState(void)
 {
 	using namespace std;
 	this->PrintLine();
-	cout << plr->WhoAmI() << "\tLV:" << plr->GetLevel()
-		<<" Exp:"<<plr->ExpHave()<<" / "<<plr->ExpNeed()<< endl;
-	cout << " HP:\t" << this->plr->GetCurrentHealth() << " / "
-		<< this->plr->GetMaxHealth() << endl;
+	cout << pPlayer->WhoAmI() << "\tLV:" << pPlayer->GetLevel()
+		<<" Exp:"<<pPlayer->ExpHave()<<" / "<<pPlayer->ExpNeed()<< endl;
+	cout << " HP:\t" << this->pPlayer->GetCurrentHealth() << " / "
+		<< this->pPlayer->GetMaxHealth() << endl;
 	this->PrintLine();
-	cout << mst->WhoAmI() << "\tLV:" << mst->GetLevel() << endl;
-	cout << " HP:\t" << this->mst->GetCurrentHealth() << " / "
-		<< this->mst->GetMaxHealth() << endl;
+	cout << pMonster->WhoAmI() << "\tLV:" << pMonster->GetLevel() << endl;
+	cout << " HP:\t" << this->pMonster->GetCurrentHealth() << " / "
+		<< this->pMonster->GetMaxHealth() << endl;
 	this->PrintLine();
 	return true;
 }
@@ -162,7 +163,7 @@ bool Battlefield::ShowState(void)
 bool Battlefield::ShowMessages(void)
 {
 	int delta;
-	//å¦‚æœæ¶ˆæ¯æ•°é‡ä¸è¶³8æ¡
+	//Èç¹ûÏûÏ¢ÊıÁ¿²»×ã4Ìõ
 	if (this->vMessage.size() <= 8)
 	{
 		delta = this->vMessage.size();
@@ -191,7 +192,7 @@ bool Battlefield::AddMessage(const char * str)
 
 bool Battlefield::IsFinshed(void)
 {
-	if (this->plr->IsDead() || this->mst->IsDead())
+	if (this->pPlayer->IsDead() || this->pMonster->IsDead())
 	{
 		return true;
 	}
@@ -210,61 +211,61 @@ bool Battlefield::Start(void)
 {
 	std::stringstream ss;
 
-	//é¦–å…ˆæ£€æµ‹æ˜¯ä¸æ˜¯å¯ä»¥å¼€æˆ˜
+	//Ê×ÏÈ¼ì²âÊÇ²»ÊÇ¿ÉÒÔ¿ªÕ½
 	if (!this->Start_IsReady())
 	{
-		//ä¸å¯ä»¥å°±è¿”å›æˆ˜æ–—å¤±è´¥
+		//²»¿ÉÒÔ¾Í·µ»ØÕ½¶·Ê§°Ü
 		return false;
 	}
 
-	//æ€ªç‰©è¿›åœºå®£è¨€
-	ss << "é‡åˆ°äº†" << this->mst->GetLevel() << "çº§çš„" << this->mst->WhoAmI();
+	//¹ÖÎï½ø³¡ĞûÑÔ
+	ss << "Óöµ½ÁË" << this->pMonster->GetLevel() << "¼¶µÄ" << this->pMonster->WhoAmI();
 	this->AddMessage(ss.str().c_str());
 
-	//æˆ˜æ–—å¾ªç¯
+	//Õ½¶·Ñ­»·
 	while (this->Start_Interaction())
 	{
 		UniformRandomSrand();
 	}
 
-	//èµ¢äº†å—
+	//Ó®ÁËÂğ
 	bool isWin = false;
-	if (this->plr->IsDead())
+	if (this->pPlayer->IsDead())
 	{
-		//ç©å®¶è¾“äº†
-		this->AddMessage("å¤±è´¥äº†ï¼");
+		//Íæ¼ÒÊäÁË
+		this->AddMessage("Ê§°ÜÁË£¡");
 		isWin = false;
 	}
-	else if (this->mst->IsDead())
+	else if (this->pMonster->IsDead())
 	{
-		//ç©å®¶èµ¢äº†
-		this->AddMessage("èƒœåˆ©äº†ï¼");
-		//åŠ ç»éªŒ
-		plr->AwardExp(mst->GetExpDrop());
+		//Íæ¼ÒÓ®ÁË
+		this->AddMessage("Ê¤ÀûÁË£¡");
+		//¼Ó¾­Ñé
+		pPlayer->AwardExp(pMonster->GetExpDrop());
 		ss.clear();
 		ss.str("");
-		ss << "è·å¾—äº† " << mst->GetExpDrop() << " ç‚¹ç»éªŒ";
+		ss << "»ñµÃÁË " << pMonster->GetExpDrop() << " µã¾­Ñé";
 		this->AddMessage(ss.str().c_str());
 		isWin = true;
 	}
 	else
 	{
-		//æ—¢ç„¶è·³å‡ºäº†æˆ˜æ–—å¾ªç¯ä½†æ˜¯æ²¡æœ‰äººæ­»ï¼Œå¤§æ¦‚ä¸å¯èƒ½çš„æƒ…å†µ
-		std::cout << "[é”™è¯¯] æˆ˜åœºç»“ç®—å‡ºç°çµå¼‚äº‹ä»¶" << std::endl;
+		//¼ÈÈ»Ìø³öÁËÕ½¶·Ñ­»·µ«ÊÇÃ»ÓĞÈËËÀ£¬´ó¸Å²»¿ÉÄÜµÄÇé¿ö
+		std::cout << "[´íÎó] Õ½³¡½áËã³öÏÖÁéÒìÊÂ¼ş" << std::endl;
 		WaitAnyKey();
 		isWin = false;
 	}
 
-	//å¾ªç¯æ£€æµ‹å‡çº§
-	while (plr->IsAbleToLevelUp())
+	//Ñ­»·¼ì²âÉı¼¶
+	while (pPlayer->IsAbleToLevelUp())
 	{
 		ss.clear();
 		ss.str("");
-		ss << "ç­‰çº§ä¸Šå‡åˆ° " << plr->LevelUp() << " çº§ï¼";
+		ss << "µÈ¼¶ÉÏÉıµ½ " << pPlayer->LevelUp() << " ¼¶£¡";
 		this->AddMessage(ss.str().c_str());
 	}
 
-	//è®©ç©å®¶çŸ¥é“ç»“æœ
+	//ÈÃÍæ¼ÒÖªµÀ½á¹û
 	system("cls");
 	this->ShowState();
 	this->ShowMessages();
@@ -276,52 +277,52 @@ Player::Player()
 {
 	this->SetAtkModifier(1.0);
 	this->SetLevel(1);
-	this->exp = 0;
+	this->ulExp = 0;
 }
 
 void Player::SetMaxHealth(void)
 {
-	//ç”Ÿå‘½å€¼ = k * level + 128
+	//ÉúÃüÖµ = k * level + 128
 	const double k = 1.0;
-	this->maxHealth = static_cast<unsigned int>(k * this->level + 128);
+	this->unMaxHealth = static_cast<unsigned int>(k * this->unLevel + 128);
 }
 
 
 unsigned int Player::ResetCurrentHealth(void)
 {
-	this->currentHealth = this->maxHealth;
-	return this->currentHealth;
+	this->unCurrentHealth = this->unMaxHealth;
+	return this->unCurrentHealth;
 }
 
 unsigned int Player::GetAtk(double k)
 {
-	//åŸºç¡€æ”»å‡»åŠ›4
+	//»ù´¡¹¥»÷Á¦4
 	return static_cast<unsigned int>(
-		(k * this->level + 4)*(this->atkModifier)
+		(k * this->unLevel + 4)*(this->dAtkModifier)
 		);
 }
 
 void Player::SetAtkModifier(double atkModifier)
 {
-	//ä¸å¯ä»¥å°äºç­‰äº0
+	//²»¿ÉÒÔĞ¡ÓÚµÈÓÚ0
 	if (atkModifier <= 0) return;
-	this->atkModifier = atkModifier;
+	this->dAtkModifier = atkModifier;
 }
 
 double Player::GetAtkModifier(void)
 {
-	return this->atkModifier;
+	return this->dAtkModifier;
 }
 
 unsigned int Player::LevelUp(void)
 {
-	this->level++;
-	return this->level;
+	this->unLevel++;
+	return this->unLevel;
 }
 
 bool Player::IsAbleToLevelUp(void)
 {
-	if (exp >= this->ExpNeed())
+	if (ulExp >= this->ExpNeed())
 	{
 		return true;
 	}
@@ -330,53 +331,53 @@ bool Player::IsAbleToLevelUp(void)
 
 unsigned long Player::ExpNeed(void)
 {
-	//åˆ°ä¸‹ä¸€ç­‰çº§æ‰€éœ€ç»éªŒå€¼è®¡ç®—å…¬å¼ 16x^2 + 128
-	unsigned int x = this->level - 1;
+	//µ½ÏÂÒ»µÈ¼¶ËùĞè¾­ÑéÖµ¼ÆËã¹«Ê½ 16x^2 + 128
+	unsigned int x = this->unLevel - 1;
 	return (x * x * 256 + 128);
 }
 
 unsigned long Player::ExpHave(void)
 {
-	return this->exp;
+	return this->ulExp;
 }
 
 unsigned long Player::AwardExp(unsigned long quantity)
 {
-	this->exp += quantity;
-	return this->exp;
+	this->ulExp += quantity;
+	return this->ulExp;
 }
 
 
 unsigned int Monster::GetAtk(double k)
 {
-	//é»˜è®¤4
+	//Ä¬ÈÏ4
 	return 4;
 }
 
 void Monster::SetMaxHealth(void)
 {
-	//ç”Ÿå‘½å€¼ = k * level + 128
+	//ÉúÃüÖµ = k * level + 128
 	const double k = 1.0;
-	this->maxHealth = static_cast<unsigned int>(k * this->level + 128);
+	this->unMaxHealth = static_cast<unsigned int>(k * this->unLevel + 128);
 }
 
 void Monster::SetMaxHealth(unsigned int maxHealth)
 {
-	this->maxHealth = maxHealth;
+	this->unMaxHealth = maxHealth;
 }
 
 unsigned int Monster::ResetCurrentHealth(void)
 {
-	this->currentHealth = maxHealth;
-	return this->currentHealth;
+	this->unCurrentHealth = unMaxHealth;
+	return this->unCurrentHealth;
 }
 
 unsigned long Monster::GetExpDrop(void)
 {
-	return this->expDrop;
+	return this->ulExpDrop;
 }
 
 void Monster::SetExpDrop(unsigned long expDrop)
 {
-	this->expDrop = expDrop;
+	this->ulExpDrop = expDrop;
 }
