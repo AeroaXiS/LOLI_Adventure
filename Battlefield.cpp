@@ -1,4 +1,3 @@
-#include "Battlefield.h"
 #include "pch.h"
 
 Battlefield * Battlefield::pBattlefield = nullptr;
@@ -19,6 +18,51 @@ bool Battlefield::Start_IsReady(void)
 	return false;
 }
 
+int Battlefield::AddAction(Body * pbySender, Body * pbyVictim, ActionType at, unsigned int data1, unsigned int data2)
+{
+	Action tmpA;
+	tmpA.pbySender = pbySender;
+	tmpA.pbyVictim = pbyVictim;
+	tmpA.at = at;
+	tmpA.unData1 = data1;
+	tmpA.unData2 = data2;
+	this->vActionQueue.push_back(tmpA);
+	return 0;
+}
+
+int Battlefield::FlushActionQueue(void)
+{
+	std::vector<Action> emptyVec;
+	this->vActionQueue.swap(emptyVec);
+	return 0;
+}
+
+int Battlefield::RunAcionQueue(void)
+{
+	for (auto &a : this->vActionQueue)
+	{
+		//清空
+		ss.clear();
+		ss.str("");
+		switch (a.at)
+		{
+		case AT_NORMAL:
+			unsigned int damage;
+			damage = a.pbySender->BattleCommonHit(a.pbyVictim);
+			ss << a.pbySender->WhoAmI() << " 对 "
+				<< a.pbyVictim->WhoAmI() << " 造成 "
+				<< damage << " 伤害";
+			this->AddMessage(ss.str().c_str());
+			break;
+		default:
+			ss << a.pbySender->WhoAmI() << " 不知所措";
+			this->AddMessage(ss.str().c_str());
+			break;
+		}
+	}
+	return 0;
+}
+
 Battlefield * Battlefield::CreateBattlefield(void)
 {
 	if (Battlefield::pBattlefield != nullptr)
@@ -36,28 +80,6 @@ bool Battlefield::WhoseBattlefield(Player * plr, Monster * mst)
 	return true;
 }
 
-bool Battlefield::AttackRound(void)
-{
-	//用于转换的字符串流
-	std::stringstream ss;
-	//获得造成的伤害
-	unsigned int plr_hit = this->pPlayer->BattleCommonHit(this->pMonster);
-	//转化
-	ss << pPlayer->WhoAmI() << "\t对\t" << pMonster->WhoAmI()
-		<< "\t造成\t" << plr_hit << "\t伤害！";
-	//注入
-	this->AddMessage(ss.str().c_str());
-	//清空
-	ss.clear();
-	ss.str("");
-	//再来一遍
-	unsigned int mst_hit = this->pMonster->BattleCommonHit(this->pPlayer);
-	ss << pMonster->WhoAmI() << "\t对\t" << pPlayer->WhoAmI()
-		<< "\t造成\t" << mst_hit << "\t伤害！";
-	this->AddMessage(ss.str().c_str());
-	return true;
-}
-
 bool Battlefield::Start_Interaction(void)
 {
 	system("cls");
@@ -65,19 +87,24 @@ bool Battlefield::Start_Interaction(void)
 	this->ShowMessages();
 	this->PrintLine();
 	std::cout << "A-攻击" << std::endl;
-	switch (_getch())
+	//已经采取行动了吗
+	bool actionTaken = false;
+	while (!actionTaken)
 	{
-	case'a':
-	case'A':
-		this->AddMessage("攻击！");
-		this->AttackRound();
-		if (this->IsFinshed()) return false; //攻击之后战场结束跳出循环
-		else return true;
-		break;
-	default:
-		return true;
-		break;
+		switch (_getch())
+		{
+		case'a':
+		case'A':
+			this->AddMessage("攻击！");
+			this->AddAction(this->pPlayer, this->pMonster,
+							AT_NORMAL, 0, 0);
+			actionTaken = true;
+			break;
+		default:
+			break;
+		}
 	}
+	return true;
 }
 
 bool Battlefield::ShowState(void)
@@ -99,7 +126,7 @@ bool Battlefield::ShowState(void)
 bool Battlefield::ShowMessages(void)
 {
 	int delta;
-	//如果消息数量不足4条
+	//如果消息数量不足8条
 	if (this->vMessage.size() <= 8)
 	{
 		delta = this->vMessage.size();
@@ -159,9 +186,15 @@ bool Battlefield::Start(void)
 	this->AddMessage(ss.str().c_str());
 
 	//战斗循环
-	while (this->Start_Interaction())
+	while (!this->IsFinshed())
 	{
 		UniformRandomSrand();
+		this->Start_Interaction();
+		//todo:	这里插入怪物AI
+		//下面是临时的怪物ai
+		AddAction(this->pMonster, this->pPlayer, AT_NORMAL, 0, 0);
+		this->RunAcionQueue();
+		this->FlushActionQueue();
 	}
 
 	//赢了吗

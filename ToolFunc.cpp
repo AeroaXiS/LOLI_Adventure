@@ -73,11 +73,13 @@ int WaitDirectionKey(void)
 
 unsigned int UniformRandom(unsigned int a, unsigned int b)
 {
+	//权威的随机数公式
 	return rand() % (b - a + 1) + a;
 }
 
 void UniformRandomSrand(void)
 {
+	//用程序开始运行到现在的tick即ms来做种子，1ms内循环进行无效
 	srand(static_cast<unsigned int>(clock()));
 }
 

@@ -43,6 +43,7 @@ private:
 private:
 
 public:
+	//默认构造函数伤害加成1等级1经验0
 	Player();
 	//根据等级设置生命值上限
 	void SetMaxHealth(void);
