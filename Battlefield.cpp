@@ -2,7 +2,6 @@
 
 Battlefield * Battlefield::pBattlefield = nullptr;
 
-
 bool Battlefield::Start_IsReady(void)
 {
 	//正常
@@ -16,6 +15,50 @@ bool Battlefield::Start_IsReady(void)
 		<< std::endl;
 	WaitAnyKey();
 	return false;
+}
+
+bool Battlefield::Start_IsWin(void)
+{
+	if (this->pPlayer->IsDead())
+	{
+		//玩家输了
+		this->AddMessage("失败了！");
+		return false;
+	}
+	else if (this->pMonster->IsDead())
+	{
+		//玩家赢了
+		this->AddMessage("胜利了！");
+		return true;
+	}
+	else
+	{
+		//能够到达这里并且没有人死是不可能的
+		std::cout << "[错误] 战场结算出现灵异事件" << std::endl;
+		WaitAnyKey();
+		return false;
+	}
+	return false;
+}
+
+bool Battlefield::Start_LevelUp(void)
+{
+	while (pPlayer->IsAbleToLevelUp())
+	{
+		ss.clear();
+		ss.str("");
+		ss << "等级上升到 " << pPlayer->LevelUp() << " 级！";
+		this->AddMessage(ss.str().c_str());
+	}
+	return true;
+}
+
+void Battlefield::Start_ShowResult(void)
+{
+	system("cls");
+	this->ShowState();
+	this->ShowMessage();
+	WaitAnyKey();
 }
 
 int Battlefield::AddAction(Body * pbySender, Body * pbyVictim, ActionType at, unsigned int data1, unsigned int data2)
@@ -80,11 +123,20 @@ bool Battlefield::WhoseBattlefield(Player * plr, Monster * mst)
 	return true;
 }
 
+bool Battlefield::Start_IsFinshed(void)
+{
+	if (this->pPlayer->IsDead() || this->pMonster->IsDead())
+	{
+		return true;
+	}
+	return false;
+}
+
 bool Battlefield::Start_Interaction(void)
 {
 	system("cls");
 	this->ShowState();
-	this->ShowMessages();
+	this->ShowMessage();
 	this->PrintLine();
 	std::cout << "A-攻击" << std::endl;
 	//已经采取行动了吗
@@ -107,6 +159,14 @@ bool Battlefield::Start_Interaction(void)
 	return true;
 }
 
+void Battlefield::PrintLine(void)
+{
+	using namespace std;
+	cout <<
+		"================================================================"
+		<< endl;
+}
+
 bool Battlefield::ShowState(void)
 {
 	using namespace std;
@@ -123,7 +183,7 @@ bool Battlefield::ShowState(void)
 	return true;
 }
 
-bool Battlefield::ShowMessages(void)
+bool Battlefield::ShowMessage(void)
 {
 	int delta;
 	//如果消息数量不足8条
@@ -153,27 +213,15 @@ bool Battlefield::AddMessage(const char * str)
 	return true;
 }
 
-bool Battlefield::IsFinshed(void)
+bool Battlefield::FlushMessage(void)
 {
-	if (this->pPlayer->IsDead() || this->pMonster->IsDead())
-	{
-		return true;
-	}
-	return false;
-}
-
-void Battlefield::PrintLine(void)
-{
-	using namespace std;
-	cout <<
-		"================================================================"
-		<< endl;
+	std::vector<std::string> emptyVec;
+	this->vMessage.swap(emptyVec);
+	return true;
 }
 
 bool Battlefield::Start(void)
 {
-	std::stringstream ss;
-
 	//首先检测是不是可以开战
 	if (!this->Start_IsReady())
 	{
@@ -182,62 +230,37 @@ bool Battlefield::Start(void)
 	}
 
 	//怪物进场宣言
+	ss.clear();
+	ss.str("");
 	ss << "遇到了" << this->pMonster->GetLevel() << "级的" << this->pMonster->WhoAmI();
 	this->AddMessage(ss.str().c_str());
 
 	//战斗循环
-	while (!this->IsFinshed())
+	while (!this->Start_IsFinshed())
 	{
 		UniformRandomSrand();
 		this->Start_Interaction();
-		//todo:	这里插入怪物AI
-		//下面是临时的怪物ai
-		AddAction(this->pMonster, this->pPlayer, AT_NORMAL, 0, 0);
+		//todo:	这里插入怪物智能
+		//下面是临时的
+		this->AddAction(this->pMonster, this->pPlayer, AT_NORMAL, 0, 0);
 		this->RunAcionQueue();
 		this->FlushActionQueue();
 	}
 
-	//赢了吗
-	bool isWin = false;
-	if (this->pPlayer->IsDead())
+	//赢了吗，胜利结算
+	if (this->Start_IsWin())
 	{
-		//玩家输了
-		this->AddMessage("失败了！");
-		isWin = false;
-	}
-	else if (this->pMonster->IsDead())
-	{
-		//玩家赢了
-		this->AddMessage("胜利了！");
 		//加经验
 		pPlayer->AwardExp(pMonster->GetExpDrop());
 		ss.clear();
 		ss.str("");
 		ss << "获得了 " << pMonster->GetExpDrop() << " 点经验";
 		this->AddMessage(ss.str().c_str());
-		isWin = true;
-	}
-	else
-	{
-		//既然跳出了战斗循环但是没有人死，大概不可能的情况
-		std::cout << "[错误] 战场结算出现灵异事件" << std::endl;
-		WaitAnyKey();
-		isWin = false;
+		//升级
+		this->Start_LevelUp();
 	}
 
-	//循环检测升级
-	while (pPlayer->IsAbleToLevelUp())
-	{
-		ss.clear();
-		ss.str("");
-		ss << "等级上升到 " << pPlayer->LevelUp() << " 级！";
-		this->AddMessage(ss.str().c_str());
-	}
+	this->Start_ShowResult();
 
-	//让玩家知道结果
-	system("cls");
-	this->ShowState();
-	this->ShowMessages();
-	WaitAnyKey();
-	return isWin;
+	return true;
 }

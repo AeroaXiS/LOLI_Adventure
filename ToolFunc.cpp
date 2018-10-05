@@ -73,7 +73,6 @@ int WaitDirectionKey(void)
 
 unsigned int UniformRandom(unsigned int a, unsigned int b)
 {
-	//权威的随机数公式
 	return rand() % (b - a + 1) + a;
 }
 

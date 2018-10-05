@@ -24,7 +24,6 @@ struct Action
 	unsigned int unData2;
 };
 
-
 /*
 单例模式的战场，游戏只能存在一个战场！
 通过CreateBattlefield()来创建或者得到当前战场，战斗结束后要手动释放。
@@ -49,20 +48,30 @@ private:
 	//行动队列
 	std::vector<Action> vActionQueue;
 private:
-	//是否玩家输了或者怪物死了
-	bool IsFinshed(void);
+
 	//打印用来分隔内容的行
 	void PrintLine(void);
 	//打印战斗双方的状态
 	bool ShowState(void);
 	//打印提示框的最后8条
-	bool ShowMessages(void);
+	bool ShowMessage(void);
 	//将提示放入提示列表，上限64条
 	bool AddMessage(const char * str);
+	//清空提示列表
+	bool FlushMessage(void);
+
+	//是否玩家输了或者怪物死了
+	bool Start_IsFinshed(void);
 	//互动 互动结束返回false
 	bool Start_Interaction(void);
 	//战场的数据情况是否可以开战
 	bool Start_IsReady(void);
+	//战场胜负判定
+	bool Start_IsWin(void);
+	//战场结算检测升级并且升级
+	bool Start_LevelUp(void);
+	//战场结果(最终屏)
+	void Start_ShowResult(void);
 
 	//添加行动
 	int AddAction(Body * pbySender, Body * pbyVictim, ActionType at,
@@ -77,6 +86,6 @@ public:
 	static Battlefield * CreateBattlefield(void);
 	//什么对象参加了战斗，注意不要填错位置
 	bool WhoseBattlefield(Player * player, Monster * monster);
-	//开始战斗 返回true为玩家胜利
+	//开始战斗，结算在内
 	bool Start(void);
 };

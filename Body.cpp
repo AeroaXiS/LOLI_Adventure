@@ -4,7 +4,6 @@ Body::Body()
 {
 }
 
-
 Body::~Body()
 {
 }
@@ -33,7 +32,6 @@ bool Body::IsDead(void)
 	if (this->unCurrentHealth <= 0) return true;
 	return false;
 }
-
 
 unsigned int Body::GetCurrentHealth(void)
 {
@@ -65,7 +63,6 @@ unsigned int Body::GetMaxHealth(void)
 	return this->unMaxHealth;
 }
 
-
 Player::Player()
 {
 	this->SetAtkModifier(1.0);
@@ -79,7 +76,6 @@ void Player::SetMaxHealth(void)
 	const double k = 1.0;
 	this->unMaxHealth = static_cast<unsigned int>(k * this->unLevel + 128);
 }
-
 
 unsigned int Player::ResetCurrentHealth(void)
 {
@@ -139,7 +135,6 @@ unsigned long Player::AwardExp(unsigned long quantity)
 	this->ulExp += quantity;
 	return this->ulExp;
 }
-
 
 unsigned int Monster::GetAtk(double k)
 {
