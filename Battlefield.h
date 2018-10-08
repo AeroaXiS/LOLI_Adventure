@@ -57,6 +57,8 @@ private:
 	bool ShowMessage(void);
 	//将提示放入提示列表，上限64条
 	bool AddMessage(const char * str);
+	//将ss的内容放进提示列表，快捷操作
+	bool AddMessage(void);
 	//清空提示列表
 	bool FlushMessage(void);
 
@@ -68,10 +70,12 @@ private:
 	bool Start_IsReady(void);
 	//战场胜负判定
 	bool Start_IsWin(void);
-	//战场结算检测升级并且升级
-	bool Start_LevelUp(void);
 	//战场结果(最终屏)
 	void Start_ShowResult(void);
+	//战场怪物进场宣言
+	void Start_ShowMonsterText(void);
+	//战场胜利结算
+	void Start_Award(void);
 
 	//添加行动
 	int AddAction(Body * pbySender, Body * pbyVictim, ActionType at,

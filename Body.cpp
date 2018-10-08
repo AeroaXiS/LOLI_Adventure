@@ -136,6 +136,27 @@ unsigned long Player::AwardExp(unsigned long quantity)
 	return this->ulExp;
 }
 
+unsigned int Player::CheckLevelUp(void)
+{
+	if (!this->IsAbleToLevelUp())
+	{
+		//不可以升级
+		return 0;
+	}
+	else
+	{
+		//循环检测可以升级多少次
+		while (this->IsAbleToLevelUp())
+		{
+			this->LevelUp();
+		}
+		//升级完成
+		return this->unLevel;
+	}
+	//错误?
+	return 0;
+}
+
 unsigned int Monster::GetAtk(double k)
 {
 	//默认4

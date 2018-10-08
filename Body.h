@@ -41,7 +41,10 @@ private:
 	//持有经验值
 	unsigned long ulExp;
 private:
-
+	//升级 返回升级后的等级
+	unsigned int LevelUp(void);
+	//若经验足够则升级返回真，否则不升级返回假
+	bool IsAbleToLevelUp(void);
 public:
 	//默认构造函数伤害加成1等级1经验0
 	Player();
@@ -55,16 +58,15 @@ public:
 	void SetAtkModifier(double atkModifier);
 	//获取攻击力加成
 	double GetAtkModifier(void);
-	//升级 返回升级后的等级
-	unsigned int LevelUp(void);
-	//若经验足够则升级返回真，否则不升级返回假
-	bool IsAbleToLevelUp(void);
 	//返回升级所需经验值
 	unsigned long ExpNeed(void);
 	//返回当前经验值
 	unsigned long ExpHave(void);
+
 	//获得经验 返回当前经验
 	unsigned long AwardExp(unsigned long quantity);
+	//检测是否可以升级并且升级，返回0没有升级，正常返回升级后等级
+	unsigned int CheckLevelUp(void);
 };
 
 class Monster : public Body

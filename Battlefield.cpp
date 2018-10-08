@@ -41,24 +41,38 @@ bool Battlefield::Start_IsWin(void)
 	return false;
 }
 
-bool Battlefield::Start_LevelUp(void)
-{
-	while (pPlayer->IsAbleToLevelUp())
-	{
-		ss.clear();
-		ss.str("");
-		ss << "等级上升到 " << pPlayer->LevelUp() << " 级！";
-		this->AddMessage(ss.str().c_str());
-	}
-	return true;
-}
-
 void Battlefield::Start_ShowResult(void)
 {
 	system("cls");
 	this->ShowState();
 	this->ShowMessage();
 	WaitAnyKey();
+}
+
+void Battlefield::Start_ShowMonsterText(void)
+{
+	ss.clear();
+	ss.str("");
+	ss << "遇到了" << this->pMonster->GetLevel() << "级的" << this->pMonster->WhoAmI();
+	this->AddMessage();
+}
+
+void Battlefield::Start_Award(void)
+{
+	//加经验
+	pPlayer->AwardExp(pMonster->GetExpDrop());
+	ss.clear();
+	ss.str("");
+	ss << "获得了 " << pMonster->GetExpDrop() << " 点经验";
+	this->AddMessage();
+	//升级
+	if (this->pPlayer->CheckLevelUp() != 0)
+	{
+		ss.clear();
+		ss.str("");
+		ss << "升级到 " << this->pPlayer->GetLevel() << " 级！";
+		this->AddMessage();
+	}
 }
 
 int Battlefield::AddAction(Body * pbySender, Body * pbyVictim, ActionType at, unsigned int data1, unsigned int data2)
@@ -203,6 +217,7 @@ bool Battlefield::ShowMessage(void)
 	return true;
 }
 
+//将提示放入提示列表，上限64条
 bool Battlefield::AddMessage(const char * str)
 {
 	if (this->vMessage.size() >= 64)
@@ -210,6 +225,13 @@ bool Battlefield::AddMessage(const char * str)
 		this->vMessage.erase(this->vMessage.begin());
 	}
 	this->vMessage.emplace_back(str);
+	return true;
+}
+
+//将ss的内容放进提示列表，快捷操作
+bool Battlefield::AddMessage(void)
+{
+	this->AddMessage(this->ss.str().c_str());
 	return true;
 }
 
@@ -222,18 +244,11 @@ bool Battlefield::FlushMessage(void)
 
 bool Battlefield::Start(void)
 {
-	//首先检测是不是可以开战
-	if (!this->Start_IsReady())
-	{
-		//不可以就返回战斗失败
-		return false;
-	}
+	//首先检测是不是可以开战 不可以就返回战斗失败
+	if (!this->Start_IsReady()) return false;
 
 	//怪物进场宣言
-	ss.clear();
-	ss.str("");
-	ss << "遇到了" << this->pMonster->GetLevel() << "级的" << this->pMonster->WhoAmI();
-	this->AddMessage(ss.str().c_str());
+	this->Start_ShowMonsterText();
 
 	//战斗循环
 	while (!this->Start_IsFinshed())
@@ -248,18 +263,9 @@ bool Battlefield::Start(void)
 	}
 
 	//赢了吗，胜利结算
-	if (this->Start_IsWin())
-	{
-		//加经验
-		pPlayer->AwardExp(pMonster->GetExpDrop());
-		ss.clear();
-		ss.str("");
-		ss << "获得了 " << pMonster->GetExpDrop() << " 点经验";
-		this->AddMessage(ss.str().c_str());
-		//升级
-		this->Start_LevelUp();
-	}
+	if (this->Start_IsWin()) this->Start_Award();
 
+	//打印最终屏
 	this->Start_ShowResult();
 
 	return true;
