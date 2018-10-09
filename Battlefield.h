@@ -1,33 +1,33 @@
-#pragma once
+ï»¿#pragma once
 
-//ĞĞ¶¯ÀàĞÍÃ¶¾Ù
+//è¡ŒåŠ¨ç±»å‹æšä¸¾
 enum ActionType
 {
-	//Ã»ÓĞÈÎºÎ¶¯×÷£¬·¢´ô
+	//æ²¡æœ‰ä»»ä½•åŠ¨ä½œï¼Œå‘å‘†
 	AT_NONE = 0,
-	//ÆÕÍ¨¹¥»÷
+	//æ™®é€šæ”»å‡»
 	AT_NORMAL = 1
 };
 
-//ĞĞ¶¯
+//è¡ŒåŠ¨
 struct Action
 {
-	//ĞĞ¶¯·¢³öÕß
+	//è¡ŒåŠ¨å‘å‡ºè€…
 	Body * pbySender;
-	//ĞĞ¶¯³ĞÊÜÕß
+	//è¡ŒåŠ¨æ‰¿å—è€…
 	Body * pbyVictim;
-	//ĞĞ¶¯ÀàĞÍ
+	//è¡ŒåŠ¨ç±»å‹
 	ActionType at;
-	//ĞĞ¶¯¸½´ø²ÎÊı1
+	//è¡ŒåŠ¨é™„å¸¦å‚æ•°1
 	unsigned int unData1;
-	//ĞĞ¶¯¸½´ø²ÎÊı2
+	//è¡ŒåŠ¨é™„å¸¦å‚æ•°2
 	unsigned int unData2;
 };
 
 /*
-µ¥ÀıÄ£Ê½µÄÕ½³¡£¬ÓÎÏ·Ö»ÄÜ´æÔÚÒ»¸öÕ½³¡£¡
-Í¨¹ıCreateBattlefield()À´´´½¨»òÕßµÃµ½µ±Ç°Õ½³¡£¬Õ½¶·½áÊøºóÒªÊÖ¶¯ÊÍ·Å¡£
-Êı¾İ½áËãÔÚÕâ¸öÀàÖĞ½øĞĞ
+å•ä¾‹æ¨¡å¼çš„æˆ˜åœºï¼Œæ¸¸æˆåªèƒ½å­˜åœ¨ä¸€ä¸ªæˆ˜åœºï¼
+é€šè¿‡CreateBattlefield()æ¥åˆ›å»ºæˆ–è€…å¾—åˆ°å½“å‰æˆ˜åœºï¼Œæˆ˜æ–—ç»“æŸåè¦æ‰‹åŠ¨é‡Šæ”¾ã€‚
+æ•°æ®ç»“ç®—åœ¨è¿™ä¸ªç±»ä¸­è¿›è¡Œ
 */
 class Battlefield
 {
@@ -35,61 +35,75 @@ private:
 	Battlefield()
 	{
 	}
-	//Õ½³¡ÖĞµÄÍæ¼Ò
-	Player * pPlayer;
-	//Õ½³¡ÖĞµÄ¹ÖÎï
-	Monster * pMonster;
-	//ÊµÀı¶ÔÏóÖ¸Õë
+	//æˆ˜åœºä¸­çš„ç©å®¶ç¾¤ï¼Œæœ€å¤š4ä½
+	std::vector<Player *> vpPlayer;
+	//æˆ˜åœºä¸­çš„æ€ªç‰©ç¾¤ï¼Œæœ€å¤š4åª
+	std::vector<Monster *> vpMonster;
+	//æˆ˜åœºä¸­å®é™…å­˜åœ¨çš„æ€ªç‰©æ•°é‡
+	unsigned int unMonsterCount;
+	//å®ä¾‹å¯¹è±¡æŒ‡é’ˆ
 	static Battlefield * pBattlefield;
-	//ºÜ¶àµØ·½ÒªÓÃµ½µÄ×Ö·û´®Á÷
+	//å¾ˆå¤šåœ°æ–¹è¦ç”¨åˆ°çš„å­—ç¬¦ä¸²æµ
 	std::stringstream ss;
-	//"ÌáÊ¾¿ò"µÄÎÄ×ÖÁĞ±í
+	//"æç¤ºæ¡†"çš„æ–‡å­—åˆ—è¡¨
 	std::vector<std::string> vMessage;
-	//ĞĞ¶¯¶ÓÁĞ
+	//è¡ŒåŠ¨é˜Ÿåˆ—
 	std::vector<Action> vActionQueue;
 private:
 
-	//´òÓ¡ÓÃÀ´·Ö¸ôÄÚÈİµÄĞĞ
+	//æ‰“å°ç”¨æ¥åˆ†éš”å†…å®¹çš„è¡Œ
 	void PrintLine(void);
-	//´òÓ¡Õ½¶·Ë«·½µÄ×´Ì¬
+	//æ‰“å°æˆ˜æ–—åŒæ–¹çš„çŠ¶æ€
 	bool ShowState(void);
-	//´òÓ¡ÌáÊ¾¿òµÄ×îºó8Ìõ
+	//æ‰“å°æç¤ºæ¡†çš„æœ€å8æ¡
 	bool ShowMessage(void);
-	//½«ÌáÊ¾·ÅÈëÌáÊ¾ÁĞ±í£¬ÉÏÏŞ64Ìõ
+	//å°†æç¤ºæ”¾å…¥æç¤ºåˆ—è¡¨ï¼Œä¸Šé™64æ¡
 	bool AddMessage(const char * str);
-	//½«ssµÄÄÚÈİ·Å½øÌáÊ¾ÁĞ±í£¬¿ì½İ²Ù×÷
+	//å°†ssçš„å†…å®¹æ”¾è¿›æç¤ºåˆ—è¡¨ï¼Œå¿«æ·æ“ä½œ
 	bool AddMessage(void);
-	//Çå¿ÕÌáÊ¾ÁĞ±í
+	//æ¸…ç©ºæç¤ºåˆ—è¡¨
 	bool FlushMessage(void);
 
-	//ÊÇ·ñÍæ¼ÒÊäÁË»òÕß¹ÖÎïËÀÁË
-	bool Start_IsFinshed(void);
-	//»¥¶¯ »¥¶¯½áÊø·µ»Øfalse
+	//æ˜¯å¦ç©å®¶å…¨ç­
+	bool IsAllPlayerDead(void);
+	//æ˜¯å¦æ€ªç‰©å…¨ç­
+	bool IsAllMonsterDead(void);
+	//äº’åŠ¨ äº’åŠ¨ç»“æŸè¿”å›false
 	bool Start_Interaction(void);
-	//Õ½³¡µÄÊı¾İÇé¿öÊÇ·ñ¿ÉÒÔ¿ªÕ½
+	//æˆ˜åœºçš„æ•°æ®æƒ…å†µæ˜¯å¦å¯ä»¥å¼€æˆ˜
 	bool Start_IsReady(void);
-	//Õ½³¡Ê¤¸ºÅĞ¶¨
+	//æˆ˜åœºèƒœè´Ÿåˆ¤å®š
 	bool Start_IsWin(void);
-	//Õ½³¡½á¹û(×îÖÕÆÁ)
+	//æˆ˜åœºç»“æœ(æœ€ç»ˆå±)
 	void Start_ShowResult(void);
-	//Õ½³¡¹ÖÎï½ø³¡ĞûÑÔ
+	//æˆ˜åœºæ€ªç‰©è¿›åœºå®£è¨€
 	void Start_ShowMonsterText(void);
-	//Õ½³¡Ê¤Àû½áËã
+	//æˆ˜åœºèƒœåˆ©ç»“ç®—
 	void Start_Award(void);
 
-	//Ìí¼ÓĞĞ¶¯
+	//æ€ªç‰©é€‰æ‹©â€œçª—å£â€
+	Monster * SelectMonster(void);
+
+	//æ·»åŠ è¡ŒåŠ¨
 	int AddAction(Body * pbySender, Body * pbyVictim, ActionType at,
 				  unsigned int data1, unsigned int data2);
-	//Çå¿ÕĞĞ¶¯
+	//æ¸…ç©ºè¡ŒåŠ¨
 	int FlushActionQueue(void);
-	//Ö´ĞĞ¶ÓÁĞ
+	//æ‰§è¡Œé˜Ÿåˆ—
 	int RunAcionQueue(void);
 
 public:
-	//µ¥Àı´´½¨Ò»¸öÕ½³¡
+	//å•ä¾‹åˆ›å»ºä¸€ä¸ªæˆ˜åœº
 	static Battlefield * CreateBattlefield(void);
-	//Ê²Ã´¶ÔÏó²Î¼ÓÁËÕ½¶·£¬×¢Òâ²»ÒªÌî´íÎ»ÖÃ
-	bool WhoseBattlefield(Player * player, Monster * monster);
-	//¿ªÊ¼Õ½¶·£¬½áËãÔÚÄÚ
+	//åˆ›å»ºå®Œä¹‹åè¦çš„ï¼Œåˆå§‹åŒ–æˆ˜åœºä¸€äº›å˜é‡æˆ–è€…å¤„ç†
+	bool Init(void);
+
+	/*åœ¨æˆ˜æ–—å¼€å§‹ä¹‹å‰è¦åšçš„*/
+	//åŠ å…¥ç©å®¶ï¼Œè¿”å›è¿™ä¸ªç©å®¶çš„æŒ‡é’ˆï¼Œè¶…è¿‡ä¸Šé™ä¸ä¼šåŠ å…¥å¹¶è¿”å›nullptr
+	Player * JoinPlayer(Player * pPlayer);
+	//åŠ å…¥æ€ªç‰©ï¼Œè¿”å›è¿™ä¸ªæ€ªç‰©çš„æŒ‡é’ˆï¼Œè¶…è¿‡ä¸Šé™ä¸ä¼šåŠ å…¥å¹¶è¿”å›nullptr
+	Monster * JoinMonster(Monster * pMonster);
+
+	//å¼€å§‹æˆ˜æ–—ï¼Œç»“ç®—åœ¨å†…
 	bool Start(void);
 };

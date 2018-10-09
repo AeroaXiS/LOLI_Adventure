@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 
 Body::Body()
 {
@@ -10,7 +10,7 @@ Body::~Body()
 
 unsigned int Body::BattleCommonHit(Body * enemy)
 {
-	//Ä¬ÈÏ·ÀÓùÁ¦2
+	//é»˜è®¤é˜²å¾¡åŠ›2
 	return enemy->BattleSuffer(RangeUniformRandom(this->GetAtk(1), 0.2));
 }
 
@@ -38,12 +38,12 @@ unsigned int Body::GetCurrentHealth(void)
 	return this->unCurrentHealth;
 }
 
-std::string & Body::WhoAmI(void)
+std::string & Body::GetName(void)
 {
 	return this->strName;
 }
 
-void Body::WhoAmI(const char * name)
+void Body::SetName(const char * name)
 {
 	this->strName.assign(name);
 }
@@ -67,12 +67,13 @@ Player::Player()
 {
 	this->SetAtkModifier(1.0);
 	this->SetLevel(1);
+	this->SetMaxHealth();
 	this->ulExp = 0;
 }
 
 void Player::SetMaxHealth(void)
 {
-	//ÉúÃüÖµ = k * level + 128
+	//ç”Ÿå‘½å€¼ = k * level + 128
 	const double k = 1.0;
 	this->unMaxHealth = static_cast<unsigned int>(k * this->unLevel + 128);
 }
@@ -85,7 +86,7 @@ unsigned int Player::ResetCurrentHealth(void)
 
 unsigned int Player::GetAtk(double k)
 {
-	//»ù´¡¹¥»÷Á¦4
+	//åŸºç¡€æ”»å‡»åŠ›4
 	return static_cast<unsigned int>(
 		(k * this->unLevel + 4)*(this->dAtkModifier)
 		);
@@ -93,7 +94,7 @@ unsigned int Player::GetAtk(double k)
 
 void Player::SetAtkModifier(double atkModifier)
 {
-	//²»¿ÉÒÔĞ¡ÓÚµÈÓÚ0
+	//ä¸å¯ä»¥å°äºç­‰äº0
 	if (atkModifier <= 0) return;
 	this->dAtkModifier = atkModifier;
 }
@@ -111,21 +112,21 @@ unsigned int Player::LevelUp(void)
 
 bool Player::IsAbleToLevelUp(void)
 {
-	if (ulExp >= this->ExpNeed())
+	if (ulExp >= this->GetExpNeed())
 	{
 		return true;
 	}
 	return false;
 }
 
-unsigned long Player::ExpNeed(void)
+unsigned long Player::GetExpNeed(void)
 {
-	//µ½ÏÂÒ»µÈ¼¶ËùĞè¾­ÑéÖµ¼ÆËã¹«Ê½ 16x^2 + 128
+	//åˆ°ä¸‹ä¸€ç­‰çº§æ‰€éœ€ç»éªŒå€¼è®¡ç®—å…¬å¼ 16x^2 + 128
 	unsigned int x = this->unLevel - 1;
 	return (x * x * 256 + 128);
 }
 
-unsigned long Player::ExpHave(void)
+unsigned long Player::GetExpHave(void)
 {
 	return this->ulExp;
 }
@@ -140,32 +141,39 @@ unsigned int Player::CheckLevelUp(void)
 {
 	if (!this->IsAbleToLevelUp())
 	{
-		//²»¿ÉÒÔÉı¼¶
+		//ä¸å¯ä»¥å‡çº§
 		return 0;
 	}
 	else
 	{
-		//Ñ­»·¼ì²â¿ÉÒÔÉı¼¶¶àÉÙ´Î
+		//å¾ªç¯æ£€æµ‹å¯ä»¥å‡çº§å¤šå°‘æ¬¡
 		while (this->IsAbleToLevelUp())
 		{
 			this->LevelUp();
 		}
-		//Éı¼¶Íê³É
+		//å‡çº§å®Œæˆ
 		return this->unLevel;
 	}
-	//´íÎó?
+	//é”™è¯¯?
 	return 0;
+}
+
+Monster::Monster()
+{
+	this->SetLevel(1);
+	this->SetMaxHealth(64);
+	this->SetExpDrop(1024);
 }
 
 unsigned int Monster::GetAtk(double k)
 {
-	//Ä¬ÈÏ4
+	//é»˜è®¤4
 	return 4;
 }
 
 void Monster::SetMaxHealth(void)
 {
-	//ÉúÃüÖµ = k * level + 128
+	//ç”Ÿå‘½å€¼ = k * level + 128
 	const double k = 1.0;
 	this->unMaxHealth = static_cast<unsigned int>(k * this->unLevel + 128);
 }

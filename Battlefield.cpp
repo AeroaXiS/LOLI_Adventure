@@ -1,40 +1,37 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 
 Battlefield * Battlefield::pBattlefield = nullptr;
 
 bool Battlefield::Start_IsReady(void)
 {
-	//Õı³£
-	if (this->pPlayer != nullptr &&
-		this->pMonster != nullptr)
+	//è‡³å°‘æœ‰ä¸€ä¸ªç©å®¶å’Œæ•Œäºº
+	if (this->vpMonster.size() >= 1 && this->vpPlayer.size() >= 1)
 	{
 		return true;
 	}
-	//¾¯¸æ
-	std::cout << "[´íÎó] ÊÔÍ¼ÔÚÊı¾İ²»×ãÊ±½øĞĞBattlefield::Start()"
-		<< std::endl;
+	std::cout << "[é”™è¯¯] æˆ˜åœºç©å®¶æˆ–æ•Œäººå°‘äº1" << std::endl;
 	WaitAnyKey();
 	return false;
 }
 
 bool Battlefield::Start_IsWin(void)
 {
-	if (this->pPlayer->IsDead())
+	if (this->IsAllPlayerDead())
 	{
-		//Íæ¼ÒÊäÁË
-		this->AddMessage("Ê§°ÜÁË£¡");
+		//ç©å®¶è¾“äº†
+		this->AddMessage("å¤±è´¥äº†ï¼");
 		return false;
 	}
-	else if (this->pMonster->IsDead())
+	else if (this->IsAllMonsterDead())
 	{
-		//Íæ¼ÒÓ®ÁË
-		this->AddMessage("Ê¤ÀûÁË£¡");
+		//ç©å®¶èµ¢äº†
+		this->AddMessage("èƒœåˆ©äº†ï¼");
 		return true;
 	}
 	else
 	{
-		//ÄÜ¹»µ½´ïÕâÀï²¢ÇÒÃ»ÓĞÈËËÀÊÇ²»¿ÉÄÜµÄ
-		std::cout << "[´íÎó] Õ½³¡½áËã³öÏÖÁéÒìÊÂ¼ş" << std::endl;
+		//èƒ½å¤Ÿåˆ°è¾¾è¿™é‡Œå¹¶ä¸”æ²¡æœ‰äººæ­»æ˜¯ä¸å¯èƒ½çš„
+		std::cout << "[é”™è¯¯] æˆ˜åœºç»“ç®—å‡ºç°çµå¼‚äº‹ä»¶" << std::endl;
 		WaitAnyKey();
 		return false;
 	}
@@ -51,28 +48,81 @@ void Battlefield::Start_ShowResult(void)
 
 void Battlefield::Start_ShowMonsterText(void)
 {
-	ss.clear();
-	ss.str("");
-	ss << "Óöµ½ÁË" << this->pMonster->GetLevel() << "¼¶µÄ" << this->pMonster->WhoAmI();
-	this->AddMessage();
+	for (auto &pMonster : this->vpMonster)
+	{
+		ss.clear();
+		ss.str("");
+		ss << "é‡åˆ°äº†" << pMonster->GetLevel() << "çº§çš„" << pMonster->GetName();
+		this->AddMessage();
+	}
 }
 
 void Battlefield::Start_Award(void)
 {
-	//¼Ó¾­Ñé
-	pPlayer->AwardExp(pMonster->GetExpDrop());
-	ss.clear();
-	ss.str("");
-	ss << "»ñµÃÁË " << pMonster->GetExpDrop() << " µã¾­Ñé";
-	this->AddMessage();
-	//Éı¼¶
-	if (this->pPlayer->CheckLevelUp() != 0)
+	//æ‰è½æ€»ç»éªŒ
+	unsigned long ulExpSum = 0;
+	for (auto &pMonster : this->vpMonster)
 	{
+		ulExpSum += pMonster->GetExpDrop();
+	}
+	//åŠ ç»éªŒï¼Œç»éªŒæ¯äººä¸€ä»½
+	for (auto &pPlayer : this->vpPlayer)
+	{
+		//æ´»äººæ‰æœ‰ç»éªŒï¼Œæ­»äººè·³è¿‡
+		if (pPlayer->IsDead()) continue;
+		pPlayer->AwardExp(ulExpSum);
 		ss.clear();
 		ss.str("");
-		ss << "Éı¼¶µ½ " << this->pPlayer->GetLevel() << " ¼¶£¡";
+		ss << "è·å¾—äº† " << ulExpSum << " ç‚¹ç»éªŒ";
 		this->AddMessage();
+		//å‡çº§
+		if (pPlayer->CheckLevelUp() != 0)
+		{
+			ss.clear();
+			ss.str("");
+			ss << "å‡çº§åˆ° " << pPlayer->GetLevel() << " çº§ï¼";
+			this->AddMessage();
+		}
 	}
+}
+
+Monster * Battlefield::SelectMonster(void)
+{
+	//å¦‚æœåªæœ‰ä¸€åªï¼Œé‚£å°±ä¸ç”¨é€‰ï¼Œç›´æ¥è¿”å›ç¬¬ä¸€ä¸ªï¼Œé™¤énull
+	if (this->vpMonster.size() == 1)
+	{
+		if (this->vpMonster[0] == nullptr) return nullptr;
+		if (this->vpMonster[0]->IsDead()) return nullptr;
+		return this->vpMonster[0];
+	}
+	//é€‰å•åˆ—è¡¨ä¸­çš„æ€ªç‰©ï¼ŒæŒ‘æ´»çš„å‡ºæ¥
+	std::vector<Monster *> vpMonsterList;
+	for (auto &pMonster : this->vpMonster)
+	{
+		if (!pMonster->IsDead()) vpMonsterList.push_back(pMonster);
+	}
+
+	//é€‰æ‹©çš„åºå·
+	unsigned int selected = 0;
+	std::cout << "é€‰æ‹©æ”»å‡»å¯¹è±¡:" << std::endl;
+	//ä¸‹é¢å¾ªç¯è¦ç”¨çš„
+	auto iter = vpMonsterList.begin();
+	int i = 1;
+	while (iter != vpMonsterList.end())
+	{
+		std::cout << "[" << i << "] " << (**iter).GetName() << std::endl;
+		i++;
+		iter++;
+	}
+	//è·å–å’Œè¿‡æ»¤æ•°å­—ä»¥å¤–çš„æŒ‰é”®ï¼Œå±è”½è¶…è¿‡å®é™…æ€ªç‰©å­˜åœ¨æ•°é‡çš„æŒ‰é”®
+	while (true)
+	{
+		selected = WaitNumKey();
+		if (selected <= 9)
+			if (selected <= vpMonsterList.size())
+				break;
+	}
+	return vpMonsterList[selected - 1];
 }
 
 int Battlefield::AddAction(Body * pbySender, Body * pbyVictim, ActionType at, unsigned int data1, unsigned int data2)
@@ -98,7 +148,7 @@ int Battlefield::RunAcionQueue(void)
 {
 	for (auto &a : this->vActionQueue)
 	{
-		//Çå¿Õ
+		//æ¸…ç©º
 		ss.clear();
 		ss.str("");
 		switch (a.at)
@@ -106,13 +156,13 @@ int Battlefield::RunAcionQueue(void)
 		case AT_NORMAL:
 			unsigned int damage;
 			damage = a.pbySender->BattleCommonHit(a.pbyVictim);
-			ss << a.pbySender->WhoAmI() << " ¶Ô "
-				<< a.pbyVictim->WhoAmI() << " Ôì³É "
-				<< damage << " ÉËº¦";
+			ss << a.pbySender->GetName() << " å¯¹ "
+				<< a.pbyVictim->GetName() << " é€ æˆ "
+				<< damage << " ä¼¤å®³";
 			this->AddMessage(ss.str().c_str());
 			break;
 		default:
-			ss << a.pbySender->WhoAmI() << " ²»ÖªËù´ë";
+			ss << a.pbySender->GetName() << " ä¸çŸ¥æ‰€æª";
 			this->AddMessage(ss.str().c_str());
 			break;
 		}
@@ -130,46 +180,98 @@ Battlefield * Battlefield::CreateBattlefield(void)
 	return pBattlefield;
 }
 
-bool Battlefield::WhoseBattlefield(Player * plr, Monster * mst)
+bool Battlefield::Init(void)
 {
-	this->pPlayer = plr;
-	this->pMonster = mst;
+	this->unMonsterCount = 0;
 	return true;
 }
 
-bool Battlefield::Start_IsFinshed(void)
+Player * Battlefield::JoinPlayer(Player * pPlayer)
 {
-	if (this->pPlayer->IsDead() || this->pMonster->IsDead())
+	//åˆ°è¾¾ä¸Šé™äº†
+	if (this->vpPlayer.size() >= 4) return nullptr;
+	//mdzz
+	if (pPlayer == nullptr) return nullptr;
+	//åŠ å…¥
+	this->vpPlayer.push_back(pPlayer);
+	//è¿”å›åˆšåˆšpush_backçš„
+	return *(this->vpPlayer.end() - 1);
+}
+
+Monster * Battlefield::JoinMonster(Monster * pMonster)
+{
+	if (this->vpMonster.size() >= 4) return nullptr;
+	if (pMonster == nullptr) return nullptr;
+	this->vpMonster.push_back(pMonster);
+	return *(this->vpMonster.end() - 1);
+}
+
+bool Battlefield::IsAllPlayerDead(void)
+{
+	for (auto &pPlayer : this->vpPlayer)
 	{
-		return true;
+		if (!pPlayer->IsDead())
+		{
+			return false;
+		}
 	}
-	return false;
+	return true;
+}
+
+bool Battlefield::IsAllMonsterDead(void)
+{
+	for (auto &pMonster : this->vpMonster)
+	{
+		if (!pMonster->IsDead())
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 bool Battlefield::Start_Interaction(void)
 {
-	system("cls");
-	this->ShowState();
-	this->ShowMessage();
-	this->PrintLine();
-	std::cout << "A-¹¥»÷" << std::endl;
-	//ÒÑ¾­²ÉÈ¡ĞĞ¶¯ÁËÂğ
-	bool actionTaken = false;
-	while (!actionTaken)
+	//é€‰ä¸­çš„æ€ªç‰©ï¼Œå¯èƒ½ç”¨åˆ°
+	Monster * pMonsterSelected;
+	//æ¯ä¸ªæ´»äººéƒ½æœ‰ä¸€æ¬¡ä¸‹å‘½ä»¤çš„æœºä¼š
+	for (auto &pPlayer : this->vpPlayer)
 	{
-		switch (_getch())
+		//æ­»äººè·³è¿‡
+		if (pPlayer->IsDead()) continue;
+
+		system("cls");
+		this->ShowState();
+		this->ShowMessage();
+		this->PrintLine();
+		std::cout << "A-æ”»å‡»" << std::endl;
+
+		//å·²ç»é‡‡å–è¡ŒåŠ¨äº†å—
+		bool actionTaken = false;
+		while (!actionTaken)
 		{
-		case'a':
-		case'A':
-			this->AddMessage("¹¥»÷£¡");
-			this->AddAction(this->pPlayer, this->pMonster,
-							AT_NORMAL, 0, 0);
-			actionTaken = true;
-			break;
-		default:
-			break;
+			switch (_getch())
+			{
+			case'a':
+			case'A':
+				pMonsterSelected = this->SelectMonster();
+				if (pMonsterSelected == nullptr)
+				{
+					std::cout << "[é”™è¯¯] B1" << std::endl;
+					WaitAnyKey();
+					exit(-2);
+				}
+				this->AddMessage("æ”»å‡»ï¼");
+				this->AddAction(pPlayer, pMonsterSelected,
+								AT_NORMAL, 0, 0);
+				actionTaken = true;
+				break;
+			default:
+				break;
+			}
 		}
 	}
+
 	return true;
 }
 
@@ -184,15 +286,24 @@ void Battlefield::PrintLine(void)
 bool Battlefield::ShowState(void)
 {
 	using namespace std;
+	//è¾“å‡ºç©å®¶çš„å…ˆ
+	for (auto &pPlayer : this->vpPlayer)
+	{
+		std::cout << pPlayer->GetName() << " LV:" << pPlayer->GetLevel()
+			<< " Exp:" << pPlayer->GetExpHave() << "/" << pPlayer->GetExpNeed()
+			<< std::endl;
+		std::cout << " HP:" << pPlayer->GetCurrentHealth() << "/"
+			<< pPlayer->GetMaxHealth() << std::endl;
+	}
 	this->PrintLine();
-	cout << pPlayer->WhoAmI() << "\tLV:" << pPlayer->GetLevel()
-		<< " Exp:" << pPlayer->ExpHave() << " / " << pPlayer->ExpNeed() << endl;
-	cout << " HP:\t" << this->pPlayer->GetCurrentHealth() << " / "
-		<< this->pPlayer->GetMaxHealth() << endl;
-	this->PrintLine();
-	cout << pMonster->WhoAmI() << "\tLV:" << pMonster->GetLevel() << endl;
-	cout << " HP:\t" << this->pMonster->GetCurrentHealth() << " / "
-		<< this->pMonster->GetMaxHealth() << endl;
+	//æ€ªç‰©çš„
+	for (auto &pMonster : this->vpMonster)
+	{
+		std::cout << pMonster->GetName() << " LV:" << pMonster->GetLevel()
+			<< std::endl;
+		std::cout << " HP:" << pMonster->GetCurrentHealth() << "/"
+			<< pMonster->GetMaxHealth() << std::endl;
+	}
 	this->PrintLine();
 	return true;
 }
@@ -200,7 +311,7 @@ bool Battlefield::ShowState(void)
 bool Battlefield::ShowMessage(void)
 {
 	int delta;
-	//Èç¹ûÏûÏ¢ÊıÁ¿²»×ã8Ìõ
+	//å¦‚æœæ¶ˆæ¯æ•°é‡ä¸è¶³8æ¡
 	if (this->vMessage.size() <= 8)
 	{
 		delta = this->vMessage.size();
@@ -217,7 +328,7 @@ bool Battlefield::ShowMessage(void)
 	return true;
 }
 
-//½«ÌáÊ¾·ÅÈëÌáÊ¾ÁĞ±í£¬ÉÏÏŞ64Ìõ
+//å°†æç¤ºæ”¾å…¥æç¤ºåˆ—è¡¨ï¼Œä¸Šé™64æ¡
 bool Battlefield::AddMessage(const char * str)
 {
 	if (this->vMessage.size() >= 64)
@@ -228,7 +339,7 @@ bool Battlefield::AddMessage(const char * str)
 	return true;
 }
 
-//½«ssµÄÄÚÈİ·Å½øÌáÊ¾ÁĞ±í£¬¿ì½İ²Ù×÷
+//å°†ssçš„å†…å®¹æ”¾è¿›æç¤ºåˆ—è¡¨ï¼Œå¿«æ·æ“ä½œ
 bool Battlefield::AddMessage(void)
 {
 	this->AddMessage(this->ss.str().c_str());
@@ -244,28 +355,31 @@ bool Battlefield::FlushMessage(void)
 
 bool Battlefield::Start(void)
 {
-	//Ê×ÏÈ¼ì²âÊÇ²»ÊÇ¿ÉÒÔ¿ªÕ½ ²»¿ÉÒÔ¾Í·µ»ØÕ½¶·Ê§°Ü
+	//é¦–å…ˆæ£€æµ‹æ˜¯ä¸æ˜¯å¯ä»¥å¼€æˆ˜ ä¸å¯ä»¥å°±è¿”å›æˆ˜æ–—å¤±è´¥
 	if (!this->Start_IsReady()) return false;
 
-	//¹ÖÎï½ø³¡ĞûÑÔ
+	//æ€ªç‰©è¿›åœºå®£è¨€
 	this->Start_ShowMonsterText();
 
-	//Õ½¶·Ñ­»·
-	while (!this->Start_IsFinshed())
+	//æˆ˜æ–—å¾ªç¯
+	while (!IsAllMonsterDead() && !IsAllPlayerDead())
 	{
 		UniformRandomSrand();
 		this->Start_Interaction();
-		//todo:	ÕâÀï²åÈë¹ÖÎïÖÇÄÜ
-		//ÏÂÃæÊÇÁÙÊ±µÄ
-		this->AddAction(this->pMonster, this->pPlayer, AT_NORMAL, 0, 0);
+		//todo:	è¿™é‡Œæ’å…¥æ€ªç‰©æ™ºèƒ½
+		//ä¸‹é¢æ˜¯ä¸´æ—¶çš„
+		for (auto &pMonster : this->vpMonster)
+		{
+			this->AddAction(pMonster, this->vpPlayer[0], AT_NORMAL, 0, 0);
+		}
 		this->RunAcionQueue();
 		this->FlushActionQueue();
 	}
 
-	//Ó®ÁËÂğ£¬Ê¤Àû½áËã
+	//èµ¢äº†å—ï¼Œèƒœåˆ©ç»“ç®—
 	if (this->Start_IsWin()) this->Start_Award();
 
-	//´òÓ¡×îÖÕÆÁ
+	//æ‰“å°æœ€ç»ˆå±
 	this->Start_ShowResult();
 
 	return true;

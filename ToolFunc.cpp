@@ -1,7 +1,7 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "ToolFunc.h"
 
-//Õâ¸öÎÄ¼şÀïµÄ´æ·Å_getchµÄÁÙÊ±¶ÔÏó£¬Í¬Ê±±ÜÃâÆµ·±ÉêÇëÄÚ´æ
+//è¿™ä¸ªæ–‡ä»¶é‡Œçš„å­˜æ”¾_getchçš„ä¸´æ—¶å¯¹è±¡ï¼ŒåŒæ—¶é¿å…é¢‘ç¹ç”³è¯·å†…å­˜
 static char keyboardPressed;
 
 void WaitAnyKey(void)
@@ -9,13 +9,13 @@ void WaitAnyKey(void)
 	keyboardPressed = _getch();
 	if (keyboardPressed == '\r')
 	{
-		//»Ø³µÓĞ\r\nÁ½²¿·Ö
+		//å›è½¦æœ‰\r\nä¸¤éƒ¨åˆ†
 		_getch();
 		return;
 	}
 	else if (keyboardPressed == 0x00 || keyboardPressed == 0xE0)
 	{
-		//ÍØÕ¹×Ö·ûÒªÏë°ì·¨Å×ÆúµôºóÃæµÄ²¿·Ö //·½Ïò¼üÆäÊµÒ²ÊÇÕâÑù
+		//æ‹“å±•å­—ç¬¦è¦æƒ³åŠæ³•æŠ›å¼ƒæ‰åé¢çš„éƒ¨åˆ† //æ–¹å‘é”®å…¶å®ä¹Ÿæ˜¯è¿™æ ·
 		_getch();
 		return;
 	}
@@ -28,31 +28,31 @@ void WaitAnyKey(void)
 int WaitDirectionKey(void)
 {
 	keyboardPressed = _getch();
-	//Èç¹ûÊÇ·½Ïò¼ü»òÕßÍØÕ¹¼ü -32ºÍ224¶¼ÊÇÍøÉÏgetµ½µÄ¶«Î÷
+	//å¦‚æœæ˜¯æ–¹å‘é”®æˆ–è€…æ‹“å±•é”® -32å’Œ224éƒ½æ˜¯ç½‘ä¸Šgetåˆ°çš„ä¸œè¥¿
 	if (keyboardPressed == -32 || keyboardPressed == 224)
 	{
-		//·½Ïò¼üÖ»¿ÉÄÜÊÇÍØÕ¹¼ü
+		//æ–¹å‘é”®åªå¯èƒ½æ˜¯æ‹“å±•é”®
 		keyboardPressed = _getch();
-		//¿ÉÄÜÊÇ·½Ïò¼ü»òÕß¼ıÍ·
+		//å¯èƒ½æ˜¯æ–¹å‘é”®æˆ–è€…ç®­å¤´
 		switch (keyboardPressed)
 		{
-			//·½Ïò¼üÉÏ
+			//æ–¹å‘é”®ä¸Š
 		case 72:
 			return 1;
 			break;
-			//·½Ïò¼üÓÒ
+			//æ–¹å‘é”®å³
 		case 77:
 			return 2;
 			break;
-			//·½Ïò¼üÏÂ
+			//æ–¹å‘é”®ä¸‹
 		case 80:
 			return 3;
 			break;
-			//·½Ïò¼ü×ó
+			//æ–¹å‘é”®å·¦
 		case 75:
 			return 4;
 			break;
-			//ÍØÕ¹×ÖÄ¸
+			//æ‹“å±•å­—æ¯
 		default:
 			return 0;
 			break;
@@ -60,15 +60,27 @@ int WaitDirectionKey(void)
 	}
 	else if (keyboardPressed == '\r')
 	{
-		//Íæ¼Ò×÷ËÀ°´»Ø³µ
+		//ç©å®¶ä½œæ­»æŒ‰å›è½¦
 		_getch();
 		return 0;
 	}
 	else
 	{
-		//ÒòÎª×ÖÄ¸·½Ïò¶¼ÊÇÍØÕ¹µÄÁË£¬ÄÇÃ´µ¥×Ö½Ú¿Ï¶¨...
+		//å› ä¸ºå­—æ¯æ–¹å‘éƒ½æ˜¯æ‹“å±•çš„äº†ï¼Œé‚£ä¹ˆå•å­—èŠ‚è‚¯å®š...
 		return 0;
 	}
+}
+
+unsigned int WaitNumKey(void)
+{
+	const char zero = '0';//åç§»çš„æ ‡å‡†
+	keyboardPressed = _getch();
+	if (keyboardPressed == 0x00 || keyboardPressed == 0xE0)
+	{
+		//ä¸æ¸…æ¥šä¼šä¸ä¼šæ˜¯æ‹“å±•é”®
+		keyboardPressed = _getch();
+	}
+	return (keyboardPressed - zero);
 }
 
 unsigned int UniformRandom(unsigned int a, unsigned int b)
@@ -78,7 +90,7 @@ unsigned int UniformRandom(unsigned int a, unsigned int b)
 
 void UniformRandomSrand(void)
 {
-	//ÓÃ³ÌĞò¿ªÊ¼ÔËĞĞµ½ÏÖÔÚµÄtick¼´msÀ´×öÖÖ×Ó£¬1msÄÚÑ­»·½øĞĞÎŞĞ§
+	//ç”¨ç¨‹åºå¼€å§‹è¿è¡Œåˆ°ç°åœ¨çš„tickå³msæ¥åšç§å­ï¼Œ1mså†…å¾ªç¯è¿›è¡Œæ— æ•ˆ
 	srand(static_cast<unsigned int>(clock()));
 }
 
