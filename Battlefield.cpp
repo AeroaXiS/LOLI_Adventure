@@ -114,13 +114,24 @@ Monster * Battlefield::SelectMonster(void)
 		i++;
 		iter++;
 	}
+	std::cout << "[0]返回" << std::endl;
+
 	//获取和过滤数字以外的按键，屏蔽超过实际怪物存在数量的按键
 	while (true)
 	{
 		selected = WaitNumKey();
 		if (selected <= 9)
-			if (selected <= vpMonsterList.size())
-				break;
+		{
+			if (selected == 0)
+			{
+				return nullptr;
+			}
+			else
+			{
+				if (selected <= vpMonsterList.size())
+					break;
+			}
+		}
 	}
 	return vpMonsterList[selected - 1];
 }
@@ -239,32 +250,27 @@ bool Battlefield::Start_Interaction(void)
 	{
 		//死人跳过
 		if (pPlayer->IsDead()) continue;
-
-		system("cls");
-		this->ShowState();
-		this->ShowMessage();
-		this->PrintLine();
-		std::cout << "A-攻击" << std::endl;
-
-		//已经采取行动了吗
-		bool actionTaken = false;
-		while (!actionTaken)
+		//这个人已经要进入下一个回合了吗（真的行动了吗
+		bool roundPassed = false;
+		//菜单循环
+		while (!roundPassed)
 		{
+			system("cls");
+			this->ShowState();
+			this->ShowMessage();
+			this->PrintLine();
+			std::cout << "要做什么: ";
+			std::cout << "A-攻击" << std::endl;
 			switch (_getch())
 			{
 			case'a':
 			case'A':
 				pMonsterSelected = this->SelectMonster();
-				if (pMonsterSelected == nullptr)
-				{
-					std::cout << "[错误] B1" << std::endl;
-					WaitAnyKey();
-					exit(-2);
-				}
+				if (pMonsterSelected == nullptr) continue;
 				this->AddMessage("攻击！");
 				this->AddAction(pPlayer, pMonsterSelected,
 								AT_NORMAL, 0, 0);
-				actionTaken = true;
+				roundPassed = true;
 				break;
 			default:
 				break;

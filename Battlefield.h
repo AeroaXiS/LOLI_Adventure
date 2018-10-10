@@ -81,7 +81,7 @@ private:
 	//战场胜利结算
 	void Start_Award(void);
 
-	//怪物选择“窗口”
+	//怪物选择“窗口”，错误或者没有选择返回null，否则返回选中的怪物
 	Monster * SelectMonster(void);
 
 	//添加行动
