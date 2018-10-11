@@ -39,6 +39,10 @@ private:
 	std::vector<Player *> vpPlayer;
 	//战场中的怪物群，最多4只
 	std::vector<Monster *> vpMonster;
+	//战场中活着的玩家，筛选，用前更新
+	std::vector<Player *> vpAlivePlayer;
+	//战场中的活着的怪物，筛选，用前更新
+	std::vector<Monster *> vpAliveMonster;
 	//战场中实际存在的怪物数量
 	unsigned int unMonsterCount;
 	//实例对象指针
@@ -55,8 +59,8 @@ private:
 	void PrintLine(void);
 	//打印战斗双方的状态
 	bool ShowState(void);
-	//打印提示框的最后8条
-	bool ShowMessage(void);
+	//打印提示的最后的几条，默认8条
+	bool ShowMessage(unsigned int many = 8);
 	//将提示放入提示列表，上限64条
 	bool AddMessage(const char * str);
 	//将ss的内容放进提示列表，快捷操作
@@ -68,18 +72,24 @@ private:
 	bool IsAllPlayerDead(void);
 	//是否怪物全灭
 	bool IsAllMonsterDead(void);
+	//更新vpAlivePlayer，返回size
+	unsigned int UpdateAlivePlayer(void);
+	//更新vpAliveMonster，返回size
+	unsigned int UpdateAliveMonster(void);
 	//互动 互动结束返回false
-	bool Start_Interaction(void);
+	bool Interact(void);
 	//战场的数据情况是否可以开战
-	bool Start_IsReady(void);
+	bool IsReadyToStart(void);
 	//战场胜负判定
-	bool Start_IsWin(void);
+	bool IsPlayerWining(void);
 	//战场结果(最终屏)
-	void Start_ShowResult(void);
+	void ShowResult(void);
 	//战场怪物进场宣言
-	void Start_ShowMonsterText(void);
-	//战场胜利结算
-	void Start_Award(void);
+	void ShowMonsterIntro(void);
+	//奖励玩家
+	void AwardPlayer(void);
+	//结算
+	void Balance(void);
 
 	//怪物选择“窗口”，错误或者没有选择返回null，否则返回选中的怪物
 	Monster * SelectMonster(void);

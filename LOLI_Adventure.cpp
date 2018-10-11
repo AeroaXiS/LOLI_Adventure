@@ -11,6 +11,8 @@ int main()
 	Monster mst1, mst2;
 	mst1.SetName("叔叔甲");
 	mst2.SetName("叔叔乙");
+	plr.SetLevel(5);
+	plr.SetMaxHealth();
 	bf->JoinMonster(&mst1)->ResetCurrentHealth();
 	bf->JoinMonster(&mst2)->ResetCurrentHealth();
 	bf->JoinPlayer(&plr)->ResetCurrentHealth();

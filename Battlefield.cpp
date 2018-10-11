@@ -2,30 +2,28 @@
 
 Battlefield * Battlefield::pBattlefield = nullptr;
 
-bool Battlefield::Start_IsReady(void)
+bool Battlefield::IsReadyToStart(void)
 {
 	//至少有一个玩家和敌人
 	if (this->vpMonster.size() >= 1 && this->vpPlayer.size() >= 1)
 	{
 		return true;
 	}
-	std::cout << "[错误] 战场玩家或敌人少于1" << std::endl;
+	std::cout << "[警告] 战场玩家或敌人少于1" << std::endl;
 	WaitAnyKey();
 	return false;
 }
 
-bool Battlefield::Start_IsWin(void)
+bool Battlefield::IsPlayerWining(void)
 {
 	if (this->IsAllPlayerDead())
 	{
 		//玩家输了
-		this->AddMessage("失败了！");
 		return false;
 	}
 	else if (this->IsAllMonsterDead())
 	{
 		//玩家赢了
-		this->AddMessage("胜利了！");
 		return true;
 	}
 	else
@@ -38,15 +36,15 @@ bool Battlefield::Start_IsWin(void)
 	return false;
 }
 
-void Battlefield::Start_ShowResult(void)
+void Battlefield::ShowResult(void)
 {
 	system("cls");
 	this->ShowState();
-	this->ShowMessage();
+	this->ShowMessage(16);
 	WaitAnyKey();
 }
 
-void Battlefield::Start_ShowMonsterText(void)
+void Battlefield::ShowMonsterIntro(void)
 {
 	for (auto &pMonster : this->vpMonster)
 	{
@@ -57,7 +55,7 @@ void Battlefield::Start_ShowMonsterText(void)
 	}
 }
 
-void Battlefield::Start_Award(void)
+void Battlefield::AwardPlayer(void)
 {
 	//掉落总经验
 	unsigned long ulExpSum = 0;
@@ -86,54 +84,51 @@ void Battlefield::Start_Award(void)
 	}
 }
 
+void Battlefield::Balance(void)
+{
+	if (IsAllMonsterDead())
+	{
+		//胜利
+		this->AddMessage("胜利了");
+		this->AwardPlayer();
+	}
+	else
+	{
+		//失败
+		this->AddMessage("失败了");
+	}
+}
+
 Monster * Battlefield::SelectMonster(void)
 {
-	//如果只有一只，那就不用选，直接返回第一个，除非null
-	if (this->vpMonster.size() == 1)
-	{
-		if (this->vpMonster[0] == nullptr) return nullptr;
-		if (this->vpMonster[0]->IsDead()) return nullptr;
-		return this->vpMonster[0];
-	}
-	//选单列表中的怪物，挑活的出来
-	std::vector<Monster *> vpMonsterList;
-	for (auto &pMonster : this->vpMonster)
-	{
-		if (!pMonster->IsDead()) vpMonsterList.push_back(pMonster);
-	}
+	//如果只有一个返回这个，判断的时候已经更新了
+	if (UpdateAliveMonster() == 1) return this->vpAliveMonster[0];
+	//如果一个活的都没有，返回null
+	if (this->vpAliveMonster.size() == 0) return nullptr;
 
 	//选择的序号
 	unsigned int selected = 0;
 	std::cout << "选择攻击对象:" << std::endl;
-	//下面循环要用的
-	auto iter = vpMonsterList.begin();
+	std::cout << "[0]返回" << std::endl;
+	auto iter = vpAliveMonster.begin();
 	int i = 1;
-	while (iter != vpMonsterList.end())
+	while (iter != this->vpAliveMonster.end())
 	{
 		std::cout << "[" << i << "] " << (**iter).GetName() << std::endl;
 		i++;
 		iter++;
 	}
-	std::cout << "[0]返回" << std::endl;
-
-	//获取和过滤数字以外的按键，屏蔽超过实际怪物存在数量的按键
+	//获取和过滤数字以外的按键，屏蔽超过实际怪物存在数量的按键，识别返回
 	while (true)
 	{
 		selected = WaitNumKey();
-		if (selected <= 9)
+		if (selected == 0) return nullptr;
+		if (selected <= this->vpAliveMonster.size())
 		{
-			if (selected == 0)
-			{
-				return nullptr;
-			}
-			else
-			{
-				if (selected <= vpMonsterList.size())
-					break;
-			}
+			return this->vpAliveMonster[selected - 1];
 		}
 	}
-	return vpMonsterList[selected - 1];
+	return nullptr;
 }
 
 int Battlefield::AddAction(Body * pbySender, Body * pbyVictim, ActionType at, unsigned int data1, unsigned int data2)
@@ -150,8 +145,9 @@ int Battlefield::AddAction(Body * pbySender, Body * pbyVictim, ActionType at, un
 
 int Battlefield::FlushActionQueue(void)
 {
-	std::vector<Action> emptyVec;
-	this->vActionQueue.swap(emptyVec);
+	//std::vector<Action> emptyVec;
+	//this->vActionQueue.swap(emptyVec);
+	this->vActionQueue.clear();
 	return 0;
 }
 
@@ -241,7 +237,27 @@ bool Battlefield::IsAllMonsterDead(void)
 	return true;
 }
 
-bool Battlefield::Start_Interaction(void)
+unsigned int Battlefield::UpdateAlivePlayer(void)
+{
+	this->vpAlivePlayer.clear();
+	for (auto &pPlayer : this->vpPlayer)
+	{
+		if (!pPlayer->IsDead()) this->vpAlivePlayer.push_back(pPlayer);
+	}
+	return vpAlivePlayer.size();
+}
+
+unsigned int Battlefield::UpdateAliveMonster(void)
+{
+	this->vpAliveMonster.clear();
+	for (auto &pPlayer : this->vpMonster)
+	{
+		if (!pPlayer->IsDead()) this->vpAliveMonster.push_back(pPlayer);
+	}
+	return vpAliveMonster.size();
+}
+
+bool Battlefield::Interact(void)
 {
 	//选中的怪物，可能用到
 	Monster * pMonsterSelected;
@@ -259,14 +275,14 @@ bool Battlefield::Start_Interaction(void)
 			this->ShowState();
 			this->ShowMessage();
 			this->PrintLine();
-			std::cout << "要做什么: ";
+			std::cout << pPlayer->GetName() << "要做什么: ";
 			std::cout << "A-攻击" << std::endl;
 			switch (_getch())
 			{
 			case'a':
 			case'A':
 				pMonsterSelected = this->SelectMonster();
-				if (pMonsterSelected == nullptr) continue;
+				if (pMonsterSelected == nullptr) break;
 				this->AddMessage("攻击！");
 				this->AddAction(pPlayer, pMonsterSelected,
 								AT_NORMAL, 0, 0);
@@ -292,8 +308,10 @@ void Battlefield::PrintLine(void)
 bool Battlefield::ShowState(void)
 {
 	using namespace std;
+	this->UpdateAlivePlayer();
+	this->UpdateAliveMonster();
 	//输出玩家的先
-	for (auto &pPlayer : this->vpPlayer)
+	for (auto &pPlayer : this->vpAlivePlayer)
 	{
 		std::cout << pPlayer->GetName() << " LV:" << pPlayer->GetLevel()
 			<< " Exp:" << pPlayer->GetExpHave() << "/" << pPlayer->GetExpNeed()
@@ -303,7 +321,7 @@ bool Battlefield::ShowState(void)
 	}
 	this->PrintLine();
 	//怪物的
-	for (auto &pMonster : this->vpMonster)
+	for (auto &pMonster : this->vpAliveMonster)
 	{
 		std::cout << pMonster->GetName() << " LV:" << pMonster->GetLevel()
 			<< std::endl;
@@ -314,17 +332,19 @@ bool Battlefield::ShowState(void)
 	return true;
 }
 
-bool Battlefield::ShowMessage(void)
+bool Battlefield::ShowMessage(unsigned int many)
 {
 	int delta;
-	//如果消息数量不足8条
-	if (this->vMessage.size() <= 8)
+	//0条不输出
+	if (many == 0) return false;
+	//如果消息数量不足条
+	if (this->vMessage.size() <= many)
 	{
 		delta = this->vMessage.size();
 	}
 	else
 	{
-		delta = 9;
+		delta = many + 1;
 	}
 	for (auto iter = this->vMessage.end() - delta;
 		 iter != vMessage.end(); iter++)
@@ -354,39 +374,42 @@ bool Battlefield::AddMessage(void)
 
 bool Battlefield::FlushMessage(void)
 {
-	std::vector<std::string> emptyVec;
-	this->vMessage.swap(emptyVec);
+	//std::vector<std::string> emptyVec;
+	//this->vMessage.swap(emptyVec);
+	this->vMessage.clear();
 	return true;
 }
 
 bool Battlefield::Start(void)
 {
 	//首先检测是不是可以开战 不可以就返回战斗失败
-	if (!this->Start_IsReady()) return false;
+	if (!this->IsReadyToStart()) return false;
 
 	//怪物进场宣言
-	this->Start_ShowMonsterText();
+	this->ShowMonsterIntro();
+	this->UpdateAliveMonster();
+	this->UpdateAlivePlayer();
 
 	//战斗循环
 	while (!IsAllMonsterDead() && !IsAllPlayerDead())
 	{
 		UniformRandomSrand();
-		this->Start_Interaction();
+		this->Interact();
 		//todo:	这里插入怪物智能
 		//下面是临时的
 		for (auto &pMonster : this->vpMonster)
 		{
-			this->AddAction(pMonster, this->vpPlayer[0], AT_NORMAL, 0, 0);
+			this->AddAction(pMonster, this->vpAlivePlayer[0], AT_NORMAL, 0, 0);
 		}
 		this->RunAcionQueue();
 		this->FlushActionQueue();
 	}
 
-	//赢了吗，胜利结算
-	if (this->Start_IsWin()) this->Start_Award();
+	//胜利结算
+	this->Balance();
 
 	//打印最终屏
-	this->Start_ShowResult();
+	this->ShowResult();
 
-	return true;
+	return IsAllMonsterDead();
 }

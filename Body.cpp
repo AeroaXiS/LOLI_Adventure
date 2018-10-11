@@ -74,7 +74,7 @@ Player::Player()
 void Player::SetMaxHealth(void)
 {
 	//生命值 = k * level + 128
-	const double k = 1.0;
+	const double k = 2.0;
 	this->unMaxHealth = static_cast<unsigned int>(k * this->unLevel + 128);
 }
 
