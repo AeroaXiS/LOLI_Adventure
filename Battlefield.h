@@ -43,8 +43,6 @@ private:
 	std::vector<Player *> vpAlivePlayer;
 	//战场中的活着的怪物，筛选，用前更新
 	std::vector<Monster *> vpAliveMonster;
-	//战场中实际存在的怪物数量
-	unsigned int unMonsterCount;
 	//实例对象指针
 	static Battlefield * pBattlefield;
 	//很多地方要用到的字符串流
@@ -67,6 +65,8 @@ private:
 	bool AddMessage(void);
 	//清空提示列表
 	bool FlushMessage(void);
+	//将ss重置清空
+	void ResetStringStream(void);
 
 	//是否玩家全灭
 	bool IsAllPlayerDead(void);
@@ -86,7 +86,7 @@ private:
 	void ShowResult(void);
 	//战场怪物进场宣言
 	void ShowMonsterIntro(void);
-	//奖励玩家
+	//奖励玩家们
 	void AwardPlayer(void);
 	//结算
 	void Balance(void);
@@ -101,6 +101,10 @@ private:
 	int FlushActionQueue(void);
 	//执行队列
 	int RunAcionQueue(void);
+	//无动作行动
+	int ActionNone(Action & a);
+	//普通攻击行动
+	int ActionNormal(Action & a);
 
 public:
 	//单例创建一个战场

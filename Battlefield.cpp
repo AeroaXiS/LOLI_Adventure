@@ -48,8 +48,7 @@ void Battlefield::ShowMonsterIntro(void)
 {
 	for (auto &pMonster : this->vpMonster)
 	{
-		ss.clear();
-		ss.str("");
+		this->ResetStringStream();
 		ss << "遇到了" << pMonster->GetLevel() << "级的" << pMonster->GetName();
 		this->AddMessage();
 	}
@@ -69,15 +68,13 @@ void Battlefield::AwardPlayer(void)
 		//活人才有经验，死人跳过
 		if (pPlayer->IsDead()) continue;
 		pPlayer->AwardExp(ulExpSum);
-		ss.clear();
-		ss.str("");
+		this->ResetStringStream();
 		ss << "获得了 " << ulExpSum << " 点经验";
 		this->AddMessage();
 		//升级
 		if (pPlayer->CheckLevelUp() != 0)
 		{
-			ss.clear();
-			ss.str("");
+			this->ResetStringStream();
 			ss << "升级到 " << pPlayer->GetLevel() << " 级！";
 			this->AddMessage();
 		}
@@ -86,7 +83,7 @@ void Battlefield::AwardPlayer(void)
 
 void Battlefield::Balance(void)
 {
-	if (IsAllMonsterDead())
+	if (IsPlayerWining())
 	{
 		//胜利
 		this->AddMessage("胜利了");
@@ -155,25 +152,36 @@ int Battlefield::RunAcionQueue(void)
 {
 	for (auto &a : this->vActionQueue)
 	{
-		//清空
-		ss.clear();
-		ss.str("");
 		switch (a.at)
 		{
 		case AT_NORMAL:
-			unsigned int damage;
-			damage = a.pbySender->BattleCommonHit(a.pbyVictim);
-			ss << a.pbySender->GetName() << " 对 "
-				<< a.pbyVictim->GetName() << " 造成 "
-				<< damage << " 伤害";
-			this->AddMessage(ss.str().c_str());
+			this->ActionNormal(a);
 			break;
 		default:
-			ss << a.pbySender->GetName() << " 不知所措";
-			this->AddMessage(ss.str().c_str());
+			this->ActionNone(a);
 			break;
 		}
 	}
+	return 0;
+}
+
+int Battlefield::ActionNone(Action & a)
+{
+	this->ResetStringStream();
+	ss << a.pbySender->GetName() << " 不知所措";
+	this->AddMessage(ss.str().c_str());
+	return 0;
+}
+
+int Battlefield::ActionNormal(Action & a)
+{
+	unsigned int damage;
+	damage = a.pbySender->BattleCommonHit(a.pbyVictim);
+	this->ResetStringStream();
+	ss << a.pbySender->GetName() << " 对 "
+		<< a.pbyVictim->GetName() << " 造成 "
+		<< damage << " 伤害";
+	this->AddMessage(ss.str().c_str());
 	return 0;
 }
 
@@ -189,7 +197,6 @@ Battlefield * Battlefield::CreateBattlefield(void)
 
 bool Battlefield::Init(void)
 {
-	this->unMonsterCount = 0;
 	return true;
 }
 
@@ -279,8 +286,8 @@ bool Battlefield::Interact(void)
 			std::cout << "A-攻击" << std::endl;
 			switch (_getch())
 			{
-			case'a':
-			case'A':
+			case 'a':
+			case 'A':
 				pMonsterSelected = this->SelectMonster();
 				if (pMonsterSelected == nullptr) break;
 				this->AddMessage("攻击！");
@@ -380,6 +387,12 @@ bool Battlefield::FlushMessage(void)
 	return true;
 }
 
+void Battlefield::ResetStringStream(void)
+{
+	this->ss.clear();
+	this->ss.str("");
+}
+
 bool Battlefield::Start(void)
 {
 	//首先检测是不是可以开战 不可以就返回战斗失败
@@ -411,5 +424,5 @@ bool Battlefield::Start(void)
 	//打印最终屏
 	this->ShowResult();
 
-	return IsAllMonsterDead();
+	return IsPlayerWining();
 }
