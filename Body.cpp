@@ -2,40 +2,15 @@
 
 Body::Body()
 {
+	this->strName = "未命名Body对象";
+	this->unLevel = 1;
+	this->dAtkBonus = 1.0;
+	this->dDefBonus = 1.0;
+	this->unMaxHealth = this->unLevel;
 }
 
 Body::~Body()
 {
-}
-
-unsigned int Body::BattleCommonHit(Body * enemy)
-{
-	return enemy->BattleSuffer(RangeUniformRandom(this->GetAtk(1), 0.2));
-}
-
-unsigned int Body::BattleSuffer(unsigned int damage)
-{
-	//防御力的25%为减伤
-	unsigned int damageRedution =
-		static_cast<unsigned int>(this->GetDef(1.0)*0.25);
-	//如果减伤大于等于伤害，伤害为1
-	if (damageRedution >= damage)
-	{
-		damage = 1;
-	}
-	else
-	{
-		damage -= damageRedution;
-	}
-	if (damage >= this->unCurrentHealth)
-	{
-		this->unCurrentHealth = 0;
-	}
-	else
-	{
-		this->unCurrentHealth -= damage;
-	}
-	return damage;
 }
 
 bool Body::IsDead(void)
@@ -74,12 +49,59 @@ unsigned int Body::GetMaxHealth(void)
 	return this->unMaxHealth;
 }
 
+unsigned int Body::DecreaseHealth(unsigned int unDamage)
+{
+	if (unDamage >= this->unCurrentHealth)
+	{
+		this->unCurrentHealth = 0;
+		return 0;
+	}
+	else
+	{
+		this->unCurrentHealth -= unDamage;
+		return this->unCurrentHealth;
+	}
+}
+
+unsigned int Body::IncreaseHealth(unsigned int unHeal)
+{
+	this->unCurrentHealth += unHeal;
+	if (this->unCurrentHealth > this->unMaxHealth)
+	{
+		this->unCurrentHealth = this->unMaxHealth;
+		return this->unCurrentHealth;
+	}
+	return this->unCurrentHealth;;
+}
+
+unsigned int Body::GetAtk(void)
+{
+	return static_cast<unsigned int>(this->unBasicAtk*this->dAtkBonus);
+}
+
+unsigned int Body::GetDef(void)
+{
+	return static_cast<unsigned int>(this->unBasicDef*this->dDefBonus);
+}
+
+void Body::SetAtkBonus(double dAtkBonus)
+{
+	if (dAtkBonus == 0.0) dAtkBonus = 1.0;
+	this->dAtkBonus = dAtkBonus;
+}
+
+void Body::SetDefBonus(double dDefBonus)
+{
+	if (dDefBonus == 0.0) dDefBonus = 1.0;
+	this->dDefBonus = dDefBonus;
+}
+
 Player::Player()
 {
-	this->SetAtkModifier(1.0);
-	this->SetDefModifier(1.0);
-	this->SetLevel(1);
 	this->SetMaxHealth();
+	this->ResetCurrentHealth();
+	this->UpdateBasicAtk();
+	this->UpdateBasicDef();
 	this->ulExp = 0;
 }
 
@@ -96,45 +118,6 @@ unsigned int Player::ResetCurrentHealth(void)
 	this->unCurrentHealth = this->unMaxHealth;
 	return this->unCurrentHealth;
 }
-
-unsigned int Player::GetAtk(double k)
-{
-	//基础攻击力4
-	return static_cast<unsigned int>(
-		(k * this->unLevel + 4)*(this->dAtkModifier)
-		);
-}
-
-void Player::SetAtkModifier(double atkModifier)
-{
-	//不可以小于等于0
-	if (atkModifier <= 0) return;
-	this->dAtkModifier = atkModifier;
-}
-
-double Player::GetAtkModifier(void)
-{
-	return this->dAtkModifier;
-}
-
-unsigned int Player::GetDef(double k)
-{
-	//基础防御力4
-	return static_cast<unsigned int>(
-		(k*this->unLevel + 4)*(this->dDefModifier)
-		);
-}
-
-void Player::SetDefModifier(double defModifier)
-{
-	this->dDefModifier = defModifier;
-}
-
-double Player::GetDefModifier(void)
-{
-	return this->dDefModifier;
-}
-
 unsigned int Player::LevelUp(void)
 {
 	this->unLevel++;
@@ -150,6 +133,20 @@ bool Player::IsAbleToLevelUp(void)
 	return false;
 }
 
+unsigned int Player::UpdateBasicAtk(void)
+{
+	this->unBasicAtk =
+		4 + this->unLevel * 4;
+	return this->unBasicAtk;
+}
+
+unsigned int Player::UpdateBasicDef(void)
+{
+	this->unBasicDef =
+		1 + this->unBasicDef * 3;
+	return this->unBasicDef;
+}
+
 unsigned long Player::GetExpNeed(void)
 {
 	//到下一等级所需经验值计算公式 16x^2 + 128
@@ -157,7 +154,7 @@ unsigned long Player::GetExpNeed(void)
 	return (x * x * 256 + 128);
 }
 
-unsigned long Player::GetExpHave(void)
+unsigned long Player::GetExpOwn(void)
 {
 	return this->ulExp;
 }
@@ -189,40 +186,40 @@ unsigned int Player::CheckLevelUp(void)
 	return 0;
 }
 
+unsigned int Monster::UpdateBasicAtk(void)
+{
+	this->unBasicAtk =
+		5 + this->unLevel * 4;
+	return this->unBasicAtk;
+}
+
+unsigned int Monster::UpdateBasicDef(void)
+{
+	this->unBasicDef =
+		6 + this->unLevel * 4;
+	return this->unBasicDef;
+}
+
 Monster::Monster()
 {
-	this->SetLevel(1);
 	this->SetMaxHealth(64);
+	this->ResetCurrentHealth();
+	this->UpdateBasicAtk();
+	this->UpdateBasicDef();
 	this->SetExpDrop(1024);
 }
 
 Monster::Monster(Monster & right)
 {
 	this->SetLevel(right.GetLevel());
+	this->UpdateBasicAtk();
+	this->UpdateBasicDef();
+	this->SetAtkBonus(1.0);
+	this->SetDefBonus(1.0);
+	this->SetMaxHealth(64);
+	this->ResetCurrentHealth();
 	this->SetExpDrop(right.GetExpDrop());
 	this->SetName(right.GetName().c_str());
-}
-
-unsigned int Monster::GetAtk(double k)
-{
-	return static_cast<unsigned int>(
-		(k * this->unLevel + 4)
-		);
-}
-
-unsigned int Monster::GetDef(double k)
-{
-	return static_cast<unsigned int>(
-		(k*this->unLevel + 4)
-		);
-}
-
-void Monster::SetMaxHealth(void)
-{
-	//生命值 = k * level + 128
-	const double k = 1.0;
-	this->unMaxHealth =
-		static_cast<unsigned int>(k * this->unLevel * this->unLevel + 128);
 }
 
 void Monster::SetMaxHealth(unsigned int maxHealth)

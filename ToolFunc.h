@@ -15,10 +15,10 @@ unsigned int WaitNumKey(void);
 unsigned int UniformRandom(unsigned int a, unsigned int b);
 
 //给UniformRandom()新种子
-void UniformRandomSrand(void);
+void RandomSrand(void);
 
 //基于UniformRandom()的范围浮动 (如6为中间值 上下浮动50%为随机[3,3])
-unsigned int RangeUniformRandom(unsigned int mid, double percent);
+unsigned int FloatingRandom(unsigned int mid, double percent);
 
 //概率抽奖，概率0.01-1，
 //不在概率范围内也会被处理掉，详见定义

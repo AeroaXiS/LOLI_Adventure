@@ -88,13 +88,13 @@ unsigned int UniformRandom(unsigned int a, unsigned int b)
 	return rand() % (b - a + 1) + a;
 }
 
-void UniformRandomSrand(void)
+void RandomSrand(void)
 {
 	//用程序开始运行到现在的tick即ms来做种子，1ms内循环进行无效
 	srand(static_cast<unsigned int>(clock()));
 }
 
-unsigned int RangeUniformRandom(unsigned int mid, double percent)
+unsigned int FloatingRandom(unsigned int mid, double percent)
 {
 	return UniformRandom(
 		static_cast<unsigned int>(mid - mid * percent),
@@ -105,7 +105,7 @@ bool Roll(float percent)
 {
 	if (percent < 0.01f) return false;
 	else if (percent >= 1.0f) return true;
-	UniformRandomSrand();
+	RandomSrand();
 	unsigned int avaliable = static_cast<unsigned int>(percent * 100);
 	unsigned int got = UniformRandom(1, 100);
 	if (got <= avaliable) return true;

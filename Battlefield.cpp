@@ -176,13 +176,30 @@ int Battlefield::ActionNone(Action & a)
 int Battlefield::ActionNormal(Action & a)
 {
 	unsigned int damage;
-	damage = a.pbySender->BattleCommonHit(a.pbyVictim);
+	damage = this->CalcDamage(a.pbySender, a.pbyVictim);
+	a.pbyVictim->DecreaseHealth(damage);
 	this->ResetStringStream();
 	ss << a.pbySender->GetName() << " 对 "
 		<< a.pbyVictim->GetName() << " 造成 "
 		<< damage << " 伤害";
-	this->AddMessage(ss.str().c_str());
+	this->AddMessage();
+	if (a.pbyVictim->IsDead())
+	{
+		this->ResetStringStream();
+		ss << a.pbyVictim->GetName() << "倒下了";
+		this->AddMessage();
+	}
 	return 0;
+}
+
+unsigned int Battlefield::CalcDamage(Body * pbySender, Body * pbyVictim)
+{
+	if (pbySender->GetAtk() <
+		static_cast<unsigned int>(pbyVictim->GetDef()*0.375))
+	{
+		return FloatingRandom(3, 0.5);
+	}
+	return FloatingRandom((pbySender->GetAtk() - pbyVictim->GetDef()), 0.2);
 }
 
 Battlefield * Battlefield::CreateBattlefield(void)
@@ -321,7 +338,7 @@ bool Battlefield::ShowState(void)
 	for (auto &pPlayer : this->vpAlivePlayer)
 	{
 		std::cout << pPlayer->GetName() << " LV:" << pPlayer->GetLevel()
-			<< " Exp:" << pPlayer->GetExpHave() << "/" << pPlayer->GetExpNeed()
+			<< " Exp:" << pPlayer->GetExpOwn() << "/" << pPlayer->GetExpNeed()
 			<< std::endl;
 		std::cout << " HP:" << pPlayer->GetCurrentHealth() << "/"
 			<< pPlayer->GetMaxHealth() << std::endl;
@@ -406,14 +423,15 @@ bool Battlefield::Start(void)
 	//战斗循环
 	while (!IsAllMonsterDead() && !IsAllPlayerDead())
 	{
-		UniformRandomSrand();
-		this->Interact();
+		RandomSrand();
 		//todo:	这里插入怪物智能
 		//下面是临时的
 		for (auto &pMonster : this->vpMonster)
 		{
 			this->AddAction(pMonster, this->vpAlivePlayer[0], AT_NORMAL, 0, 0);
 		}
+		//end
+		this->Interact();
 		this->RunAcionQueue();
 		this->FlushActionQueue();
 	}

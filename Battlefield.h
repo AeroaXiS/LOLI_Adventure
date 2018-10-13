@@ -52,7 +52,6 @@ private:
 	//行动队列
 	std::vector<Action> vActionQueue;
 private:
-
 	//打印用来分隔内容的行
 	void PrintLine(void);
 	//打印战斗双方的状态
@@ -106,6 +105,8 @@ private:
 	//普通攻击行动
 	int ActionNormal(Action & a);
 
+	//伤害计算
+	unsigned int CalcDamage(Body * pbySender, Body *pbyVictim);
 public:
 	//单例创建一个战场
 	static Battlefield * CreateBattlefield(void);
