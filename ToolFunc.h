@@ -19,3 +19,7 @@ void UniformRandomSrand(void);
 
 //基于UniformRandom()的范围浮动 (如6为中间值 上下浮动50%为随机[3,3])
 unsigned int RangeUniformRandom(unsigned int mid, double percent);
+
+//概率抽奖，概率0.01-1，
+//不在概率范围内也会被处理掉，详见定义
+bool Roll(float percent);

@@ -100,3 +100,14 @@ unsigned int RangeUniformRandom(unsigned int mid, double percent)
 		static_cast<unsigned int>(mid - mid * percent),
 		static_cast<unsigned int>(mid + mid * percent));
 }
+
+bool Roll(float percent)
+{
+	if (percent < 0.01f) return false;
+	else if (percent >= 1.0f) return true;
+	UniformRandomSrand();
+	unsigned int avaliable = static_cast<unsigned int>(percent * 100);
+	unsigned int got = UniformRandom(1, 100);
+	if (got <= avaliable) return true;
+	return false;
+}
