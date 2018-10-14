@@ -96,10 +96,28 @@ void Battlefield::Balance(void)
 	}
 }
 
+bool Battlefield::Interact_ActionNormal(Player * pPlayer_Sender)
+{
+	Monster * pMonsterSelected;
+	pMonsterSelected = this->SelectMonster();
+	if (pMonsterSelected == nullptr) return false;
+	this->AddAction(pPlayer_Sender, pMonsterSelected,
+					AT_NORMAL, 0, 0);
+	return true;
+}
+
+bool Battlefield::Interact_ActionDefense(Player * pPlayer_Sender)
+{
+	Player * pPlayerSelected;
+	pPlayerSelected = this->SelectPlayer();
+	if (pPlayerSelected == nullptr) return false;
+	this->AddAction(pPlayer_Sender, pPlayerSelected, AT_DEFENSE, 0, 0);
+	return true;
+}
+
 Monster * Battlefield::SelectMonster(void)
 {
-	//如果只有一个返回这个，判断的时候已经更新了
-	if (UpdateAliveMonster() == 1) return this->vpAliveMonster[0];
+	UpdateAliveMonster();
 	//如果一个活的都没有，返回null
 	if (this->vpAliveMonster.size() == 0) return nullptr;
 
@@ -108,7 +126,7 @@ Monster * Battlefield::SelectMonster(void)
 	std::cout << "选择攻击对象:" << std::endl;
 	std::cout << "[0]返回" << std::endl;
 	auto iter = vpAliveMonster.begin();
-	int i = 1;
+	unsigned int i = 1;
 	while (iter != this->vpAliveMonster.end())
 	{
 		std::cout << "[" << i << "] " << (**iter).GetName() << std::endl;
@@ -128,6 +146,31 @@ Monster * Battlefield::SelectMonster(void)
 	return nullptr;
 }
 
+Player * Battlefield::SelectPlayer(void)
+{
+	unsigned int selected = 0;
+	std::cout << "谁:" << std::endl << "[0]返回" << std::endl;
+	UpdateAlivePlayer();
+	auto iter = vpAlivePlayer.begin();
+	unsigned int i = 1;
+	while (iter != this->vpAlivePlayer.end())
+	{
+		std::cout << "[" << i << "]" << (**iter).GetName() << std::endl;
+		iter++;
+		i++;
+	}
+	while (true)
+	{
+		selected = WaitNumKey();
+		if (selected == 0) return nullptr;
+		if (selected <= this->vpAlivePlayer.size())
+		{
+			return this->vpAlivePlayer[selected - 1];
+		}
+	}
+	return nullptr;
+}
+
 int Battlefield::AddAction(Body * pbySender, Body * pbyVictim, ActionType at, unsigned int data1, unsigned int data2)
 {
 	Action tmpA;
@@ -142,8 +185,6 @@ int Battlefield::AddAction(Body * pbySender, Body * pbyVictim, ActionType at, un
 
 int Battlefield::FlushActionQueue(void)
 {
-	//std::vector<Action> emptyVec;
-	//this->vActionQueue.swap(emptyVec);
 	this->vActionQueue.clear();
 	return 0;
 }
@@ -156,6 +197,9 @@ int Battlefield::RunAcionQueue(void)
 		{
 		case AT_NORMAL:
 			this->ActionNormal(a);
+			break;
+		case AT_DEFENSE:
+			this->ActionDefense(a);
 			break;
 		default:
 			this->ActionNone(a);
@@ -189,6 +233,16 @@ int Battlefield::ActionNormal(Action & a)
 		ss << a.pbyVictim->GetName() << "倒下了";
 		this->AddMessage();
 	}
+	return 0;
+}
+
+int Battlefield::ActionDefense(Action & a)
+{
+	//暂时还是加血反馈一下
+	a.pbyVictim->IncreaseHealth(100);
+	this->ResetStringStream();
+	ss << a.pbySender->GetName() << "正在保护" << a.pbyVictim->GetName();
+	this->AddMessage();
 	return 0;
 }
 
@@ -283,8 +337,6 @@ unsigned int Battlefield::UpdateAliveMonster(void)
 
 bool Battlefield::Interact(void)
 {
-	//选中的怪物，可能用到
-	Monster * pMonsterSelected;
 	//每个活人都有一次下命令的机会
 	for (auto &pPlayer : this->vpPlayer)
 	{
@@ -300,17 +352,17 @@ bool Battlefield::Interact(void)
 			this->ShowMessage();
 			this->PrintLine();
 			std::cout << pPlayer->GetName() << "要做什么: ";
-			std::cout << "A-攻击" << std::endl;
+			std::cout << "A-攻击 D-保护"
+				<< std::endl;
 			switch (_getch())
 			{
 			case 'a':
 			case 'A':
-				pMonsterSelected = this->SelectMonster();
-				if (pMonsterSelected == nullptr) break;
-				this->AddMessage("攻击！");
-				this->AddAction(pPlayer, pMonsterSelected,
-								AT_NORMAL, 0, 0);
-				roundPassed = true;
+				roundPassed = this->Interact_ActionNormal(pPlayer);
+				break;
+			case 'd':
+			case 'D':
+				roundPassed = this->Interact_ActionDefense(pPlayer);
 				break;
 			default:
 				break;

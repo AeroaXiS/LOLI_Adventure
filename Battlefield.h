@@ -6,7 +6,9 @@ enum ActionType
 	//没有任何动作，发呆
 	AT_NONE = 0,
 	//普通攻击
-	AT_NORMAL = 1
+	AT_NORMAL = 1,
+	//防御
+	AT_DEFENSE = 2
 };
 
 //行动
@@ -77,6 +79,10 @@ private:
 	unsigned int UpdateAliveMonster(void);
 	//互动 互动结束返回false
 	bool Interact(void);
+	//若没有选择（返回），返回false
+	bool Interact_ActionNormal(Player * pPlayer_Sender);
+	//若没有选择（返回），返回false
+	bool Interact_ActionDefense(Player * pPlayer_Sender);
 	//战场的数据情况是否可以开战
 	bool IsReadyToStart(void);
 	//战场胜负判定
@@ -90,8 +96,10 @@ private:
 	//结算
 	void Balance(void);
 
-	//怪物选择“窗口”，错误或者没有选择返回null，否则返回选中的怪物
+	//活怪物选择“窗口”，错误或者没有选择返回null，否则返回选中的怪物
 	Monster * SelectMonster(void);
+	//活玩家选择“窗口”，错误或者没有选择返回null，否则返回选中的玩家
+	Player * SelectPlayer(void);
 
 	//添加行动
 	int AddAction(Body * pbySender, Body * pbyVictim, ActionType at,
@@ -104,6 +112,8 @@ private:
 	int ActionNone(Action & a);
 	//普通攻击行动
 	int ActionNormal(Action & a);
+	//保护行动
+	int ActionDefense(Action & a);
 
 	//伤害计算
 	unsigned int CalcDamage(Body * pbySender, Body *pbyVictim);
