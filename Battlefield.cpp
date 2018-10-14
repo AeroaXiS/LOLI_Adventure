@@ -169,7 +169,7 @@ int Battlefield::ActionNone(Action & a)
 {
 	this->ResetStringStream();
 	ss << a.pbySender->GetName() << " 不知所措";
-	this->AddMessage(ss.str().c_str());
+	this->AddMessage();
 	return 0;
 }
 
