@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+/.vs
+/Debug
+/LOLI_Adventure.sln
+/LOLI_Adventure.vcxproj
+/LOLI_Adventure.vcxproj.filters
+/LOLI_Adventure.vcxproj.user

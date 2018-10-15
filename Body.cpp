@@ -1,382 +1,244 @@
-#include "pch.h"
-#include "Body.h"
-
-Battlefield * Battlefield::pBattlefield = nullptr;
+﻿#include "pch.h"
 
 Body::Body()
 {
+	this->strName = "未命名Body对象";
+	this->unLevel = 1;
+	this->dAtkBonus = 1.0;
+	this->dDefBonus = 1.0;
+	this->unMaxHealth = this->unLevel;
 }
-
 
 Body::~Body()
 {
 }
 
-unsigned int Body::BattleCommonHit(Body * enemy)
-{
-	return enemy->BattleSuffer(RangeUniformRandom(this->GetAtk(1), 0.2));
-}
-
-unsigned int Body::BattleSuffer(unsigned int damege)
-{
-	if (damege >= this->currentHealth)
-	{
-		this->currentHealth = 0;
-	}
-	else
-	{
-		this->currentHealth -= damege;
-	}
-	return damege;
-}
-
 bool Body::IsDead(void)
 {
-	if (this->currentHealth <= 0) return true;
+	if (this->unCurrentHealth <= 0) return true;
 	return false;
 }
 
-
 unsigned int Body::GetCurrentHealth(void)
 {
-	return this->currentHealth;
+	return this->unCurrentHealth;
 }
 
-std::string & Body::WhoAmI(void)
+std::string & Body::GetName(void)
 {
-	return this->name;
+	return this->strName;
 }
 
-void Body::WhoAmI(const char * name)
+void Body::SetName(const char * name)
 {
-	this->name.assign(name);
+	this->strName.assign(name);
 }
 
 unsigned int Body::GetLevel(void)
 {
-	return this->level;
+	return this->unLevel;
 }
 
 void Body::SetLevel(unsigned int level)
 {
-	this->level = level;
+	this->unLevel = level;
 }
 
 unsigned int Body::GetMaxHealth(void)
 {
-	return this->maxHealth;
+	return this->unMaxHealth;
 }
 
-bool Battlefield::Start_IsReady(void)
+unsigned int Body::DecreaseHealth(unsigned int unDamage)
 {
-	//正常
-	if (this->plr != nullptr &&
-		this->mst != nullptr)
+	if (unDamage >= this->unCurrentHealth)
 	{
-		return true;
-	}
-	//警告
-	std::cout << "[错误] 试图在数据不足时进行Battlefield::Start()"
-		<< std::endl;
-	WaitAnyKey();
-	return false;
-}
-
-Battlefield * Battlefield::CreateBattlefield(void)
-{
-	if (Battlefield::pBattlefield != nullptr)
-	{
-		return Battlefield::pBattlefield;
-	}
-	pBattlefield = new Battlefield;
-	return pBattlefield;
-}
-
-bool Battlefield::WhoseBattlefield(Player * plr, Monster * mst)
-{
-	this->plr = plr;
-	this->mst = mst;
-	return true;
-}
-
-bool Battlefield::AttackRound(void)
-{
-	//用于转换的字符串流
-	std::stringstream ss;
-	//获得造成的伤害
-	unsigned int plr_hit = this->plr->BattleCommonHit(this->mst);
-	//转化
-	ss << plr->WhoAmI() << "\t对\t" << mst->WhoAmI()
-		<< "\t造成\t" << plr_hit << "\t伤害！";
-	//注入
-	this->AddMessage(ss.str().c_str());
-	//清空
-	ss.clear();
-	ss.str("");
-	//再来一遍
-	unsigned int mst_hit = this->mst->BattleCommonHit(this->plr);
-	ss << mst->WhoAmI() << "\t对\t" << plr->WhoAmI()
-		<< "\t造成\t" << mst_hit << "\t伤害！";
-	this->AddMessage(ss.str().c_str());
-	return true;
-}
-
-bool Battlefield::Start_Interaction(void)
-{
-	system("cls");
-	this->ShowState();
-	this->ShowMessages();
-	this->PrintLine();
-	std::cout << "A-攻击" << std::endl;
-	switch (_getch())
-	{
-	case'a':
-	case'A':
-		this->AddMessage("攻击！");
-		this->AttackRound();
-		if (this->IsFinshed()) return false; //攻击之后战场结束跳出循环
-		else return true;
-		break;
-	default:
-		return true;
-		break;
-	}
-}
-
-bool Battlefield::ShowState(void)
-{
-	using namespace std;
-	this->PrintLine();
-	cout << plr->WhoAmI() << "\tLV:" << plr->GetLevel()
-		<<" Exp:"<<plr->ExpHave()<<" / "<<plr->ExpNeed()<< endl;
-	cout << " HP:\t" << this->plr->GetCurrentHealth() << " / "
-		<< this->plr->GetMaxHealth() << endl;
-	this->PrintLine();
-	cout << mst->WhoAmI() << "\tLV:" << mst->GetLevel() << endl;
-	cout << " HP:\t" << this->mst->GetCurrentHealth() << " / "
-		<< this->mst->GetMaxHealth() << endl;
-	this->PrintLine();
-	return true;
-}
-
-bool Battlefield::ShowMessages(void)
-{
-	int delta;
-	//如果消息数量不足8条
-	if (this->vMessage.size() <= 8)
-	{
-		delta = this->vMessage.size();
+		this->unCurrentHealth = 0;
+		return 0;
 	}
 	else
 	{
-		delta = 9;
+		this->unCurrentHealth -= unDamage;
+		return this->unCurrentHealth;
 	}
-	for (auto iter = this->vMessage.end() - delta;
-		 iter != vMessage.end(); iter++)
-	{
-		std::cout << *iter << std::endl;
-	}
-	return true;
 }
 
-bool Battlefield::AddMessage(const char * str)
+unsigned int Body::IncreaseHealth(unsigned int unHeal)
 {
-	if (this->vMessage.size() >= 64)
+	this->unCurrentHealth += unHeal;
+	if (this->unCurrentHealth > this->unMaxHealth)
 	{
-		this->vMessage.erase(this->vMessage.begin());
+		this->unCurrentHealth = this->unMaxHealth;
+		return this->unCurrentHealth;
 	}
-	this->vMessage.emplace_back(str);
-	return true;
+	return this->unCurrentHealth;;
 }
 
-bool Battlefield::IsFinshed(void)
+unsigned int Body::GetAtk(void)
 {
-	if (this->plr->IsDead() || this->mst->IsDead())
-	{
-		return true;
-	}
-	return false;
+	return static_cast<unsigned int>(this->unBasicAtk*this->dAtkBonus);
 }
 
-void Battlefield::PrintLine(void)
+unsigned int Body::GetDef(void)
 {
-	using namespace std;
-	cout << 
-		"================================================================" 
-		<< endl;
+	return static_cast<unsigned int>(this->unBasicDef*this->dDefBonus);
 }
 
-bool Battlefield::Start(void)
+void Body::SetAtkBonus(double dAtkBonus)
 {
-	std::stringstream ss;
+	if (dAtkBonus == 0.0) dAtkBonus = 1.0;
+	this->dAtkBonus = dAtkBonus;
+}
 
-	//首先检测是不是可以开战
-	if (!this->Start_IsReady())
-	{
-		//不可以就返回战斗失败
-		return false;
-	}
-
-	//怪物进场宣言
-	ss << "遇到了" << this->mst->GetLevel() << "级的" << this->mst->WhoAmI();
-	this->AddMessage(ss.str().c_str());
-
-	//战斗循环
-	while (this->Start_Interaction())
-	{
-		UniformRandomSrand();
-	}
-
-	//赢了吗
-	bool isWin = false;
-	if (this->plr->IsDead())
-	{
-		//玩家输了
-		this->AddMessage("失败了！");
-		isWin = false;
-	}
-	else if (this->mst->IsDead())
-	{
-		//玩家赢了
-		this->AddMessage("胜利了！");
-		//加经验
-		plr->AwardExp(mst->GetExpDrop());
-		ss.clear();
-		ss.str("");
-		ss << "获得了 " << mst->GetExpDrop() << " 点经验";
-		this->AddMessage(ss.str().c_str());
-		isWin = true;
-	}
-	else
-	{
-		//既然跳出了战斗循环但是没有人死，大概不可能的情况
-		std::cout << "[错误] 战场结算出现灵异事件" << std::endl;
-		WaitAnyKey();
-		isWin = false;
-	}
-
-	//循环检测升级
-	while (plr->IsAbleToLevelUp())
-	{
-		ss.clear();
-		ss.str("");
-		ss << "等级上升到 " << plr->LevelUp() << " 级！";
-		this->AddMessage(ss.str().c_str());
-	}
-
-	//让玩家知道结果
-	system("cls");
-	this->ShowState();
-	this->ShowMessages();
-	WaitAnyKey();
-	return isWin;
+void Body::SetDefBonus(double dDefBonus)
+{
+	if (dDefBonus == 0.0) dDefBonus = 1.0;
+	this->dDefBonus = dDefBonus;
 }
 
 Player::Player()
 {
-	this->SetAtkModifier(1.0);
-	this->SetLevel(1);
-	this->exp = 0;
+	this->SetMaxHealth();
+	this->ResetCurrentHealth();
+	this->UpdateBasicAtk();
+	this->UpdateBasicDef();
+	this->ulExp = 0;
 }
 
 void Player::SetMaxHealth(void)
 {
-	//生命值 = k * level + 128
-	const double k = 1.0;
-	this->maxHealth = static_cast<unsigned int>(k * this->level + 128);
+	//生命值 = k * level * level + 128
+	const double k = 2.0;
+	this->unMaxHealth =
+		static_cast<unsigned int>(k * this->unLevel * this->unLevel + 128);
 }
-
 
 unsigned int Player::ResetCurrentHealth(void)
 {
-	this->currentHealth = this->maxHealth;
-	return this->currentHealth;
+	this->unCurrentHealth = this->unMaxHealth;
+	return this->unCurrentHealth;
 }
-
-unsigned int Player::GetAtk(double k)
-{
-	//基础攻击力4
-	return static_cast<unsigned int>(
-		(k * this->level + 4)*(this->atkModifier)
-		);
-}
-
-void Player::SetAtkModifier(double atkModifier)
-{
-	//不可以小于等于0
-	if (atkModifier <= 0) return;
-	this->atkModifier = atkModifier;
-}
-
-double Player::GetAtkModifier(void)
-{
-	return this->atkModifier;
-}
-
 unsigned int Player::LevelUp(void)
 {
-	this->level++;
-	return this->level;
+	this->unLevel++;
+	return this->unLevel;
 }
 
 bool Player::IsAbleToLevelUp(void)
 {
-	if (exp >= this->ExpNeed())
+	if (ulExp >= this->GetExpNeed())
 	{
 		return true;
 	}
 	return false;
 }
 
-unsigned long Player::ExpNeed(void)
+unsigned int Player::UpdateBasicAtk(void)
+{
+	this->unBasicAtk =
+		4 + this->unLevel * 4;
+	return this->unBasicAtk;
+}
+
+unsigned int Player::UpdateBasicDef(void)
+{
+	this->unBasicDef =
+		1 + this->unBasicDef * 3;
+	return this->unBasicDef;
+}
+
+unsigned long Player::GetExpNeed(void)
 {
 	//到下一等级所需经验值计算公式 16x^2 + 128
-	unsigned int x = this->level - 1;
+	unsigned int x = this->unLevel - 1;
 	return (x * x * 256 + 128);
 }
 
-unsigned long Player::ExpHave(void)
+unsigned long Player::GetExpOwn(void)
 {
-	return this->exp;
+	return this->ulExp;
 }
 
 unsigned long Player::AwardExp(unsigned long quantity)
 {
-	this->exp += quantity;
-	return this->exp;
+	this->ulExp += quantity;
+	return this->ulExp;
 }
 
-
-unsigned int Monster::GetAtk(double k)
+unsigned int Player::CheckLevelUp(void)
 {
-	//默认4
-	return 4;
+	if (!this->IsAbleToLevelUp())
+	{
+		//不可以升级
+		return 0;
+	}
+	else
+	{
+		//循环检测可以升级多少次
+		while (this->IsAbleToLevelUp())
+		{
+			this->LevelUp();
+		}
+		//升级完成
+		return this->unLevel;
+	}
+	//错误?
+	return 0;
 }
 
-void Monster::SetMaxHealth(void)
+unsigned int Monster::UpdateBasicAtk(void)
 {
-	//生命值 = k * level + 128
-	const double k = 1.0;
-	this->maxHealth = static_cast<unsigned int>(k * this->level + 128);
+	this->unBasicAtk =
+		5 + this->unLevel * 4;
+	return this->unBasicAtk;
+}
+
+unsigned int Monster::UpdateBasicDef(void)
+{
+	this->unBasicDef =
+		6 + this->unLevel * 4;
+	return this->unBasicDef;
+}
+
+Monster::Monster()
+{
+	this->SetMaxHealth(64);
+	this->ResetCurrentHealth();
+	this->UpdateBasicAtk();
+	this->UpdateBasicDef();
+	this->SetExpDrop(1024);
+}
+
+Monster::Monster(Monster & right)
+{
+	this->SetLevel(right.GetLevel());
+	this->UpdateBasicAtk();
+	this->UpdateBasicDef();
+	this->SetAtkBonus(1.0);
+	this->SetDefBonus(1.0);
+	this->SetMaxHealth(64);
+	this->ResetCurrentHealth();
+	this->SetExpDrop(right.GetExpDrop());
+	this->SetName(right.GetName().c_str());
 }
 
 void Monster::SetMaxHealth(unsigned int maxHealth)
 {
-	this->maxHealth = maxHealth;
+	this->unMaxHealth = maxHealth;
 }
 
 unsigned int Monster::ResetCurrentHealth(void)
 {
-	this->currentHealth = maxHealth;
-	return this->currentHealth;
+	this->unCurrentHealth = unMaxHealth;
+	return this->unCurrentHealth;
 }
 
 unsigned long Monster::GetExpDrop(void)
 {
-	return this->expDrop;
+	return this->ulExpDrop;
 }
 
 void Monster::SetExpDrop(unsigned long expDrop)
 {
-	this->expDrop = expDrop;
+	this->ulExpDrop = expDrop;
 }

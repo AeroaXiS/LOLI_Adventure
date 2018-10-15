@@ -1,17 +1,25 @@
-#pragma once
+ï»¿#pragma once
 
-//µ¥´¿µØÓÃÀ´×öÈÎÒâ¼üÏÂÒ»²½µÄ
+//å•çº¯åœ°ç”¨æ¥åšä»»æ„é”®ä¸‹ä¸€æ­¥çš„
 void WaitAnyKey(void);
 
-//¼üÅÌ·½Ïò¼ü»ñÈ¡
-//ÉÏÎª1Ë³Ê±Õëµ½4£¬0Îª²»ÊÇ·½Ïò¼ü
+//é”®ç›˜æ–¹å‘é”®è·å–
+//1ä¸Š-2å³-3ä¸‹-4å·¦ï¼Œ0ä¸ºæŒ‰çš„ä¸æ˜¯æ–¹å‘é”®
 int WaitDirectionKey(void);
 
-//ÔÚÇø¼ä[a,b]ÄÚÆ½¾ù·Ö²¼µÄËæ»ú aĞ¡b´ó Ö»ÄÜÊÇÕıÕûÊı
+//é”®ç›˜æ•°å­—è·å–ï¼Œä¸€èˆ¬ç”¨æ¥é€‰æ‹©
+//å¦‚æœä¸æ˜¯0-9çš„æŒ‰é”®ï¼Œè¿”å›å¤§äº9
+unsigned int WaitNumKey(void);
+
+//åœ¨åŒºé—´[a,b]å†…å¹³å‡åˆ†å¸ƒçš„éšæœº aå°bå¤§ åªèƒ½æ˜¯æ­£æ•´æ•°
 unsigned int UniformRandom(unsigned int a, unsigned int b);
 
-//¸øuniform_random()ĞÂÖÖ×Ó
-void UniformRandomSrand(void);
+//ç»™UniformRandom()æ–°ç§å­
+void RandomSrand(void);
 
-//»ùÓÚuniform_random()µÄ·¶Î§¸¡¶¯ Èç6ÎªÖĞ¼äÖµ ÉÏÏÂ¸¡¶¯50%ÎªËæ»ú[3,3]
-unsigned int RangeUniformRandom(unsigned int mid, double percent);
+//åŸºäºUniformRandom()çš„èŒƒå›´æµ®åŠ¨ (å¦‚6ä¸ºä¸­é—´å€¼ ä¸Šä¸‹æµ®åŠ¨50%ä¸ºéšæœº[3,3])
+unsigned int FloatingRandom(unsigned int mid, double percent);
+
+//æ¦‚ç‡æŠ½å¥–ï¼Œæ¦‚ç‡0.01-1ï¼Œ
+//ä¸åœ¨æ¦‚ç‡èŒƒå›´å†…ä¹Ÿä¼šè¢«å¤„ç†æ‰ï¼Œè¯¦è§å®šä¹‰
+bool Roll(float percent);

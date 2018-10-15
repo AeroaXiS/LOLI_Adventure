@@ -1,134 +1,115 @@
-#pragma once
-//²»Ó¦¸Ã±»ÊµÀı»¯µÄ£¬ÔİÊ±Ã»ÓĞ¼Ó´¿Ğéº¯Êı
+ï»¿#pragma once
+//ä¸åº”è¯¥è¢«å®ä¾‹åŒ–çš„ï¼Œæš‚æ—¶æ²¡æœ‰åŠ çº¯è™šå‡½æ•°
 class Body
 {
 protected:
-	std::string name;
-	unsigned int currentHealth, maxHealth;
-	unsigned int level;
+	std::string strName;
+	unsigned int unCurrentHealth, unMaxHealth;
+	unsigned int unLevel;
+	unsigned int unBasicAtk, unBasicDef;
+	double dAtkBonus, dDefBonus;
 public:
 	Body();
 	virtual ~Body();
-	//¹¥»÷ ·µ»ØÔì³ÉµÄÉËº¦ ÓÉ¶ÔÏóµÄBattle_Suffer()Ìá¹©
-	unsigned int BattleCommonHit(Body * enemy);
-	//³ĞÊÜ¹¥»÷ ·µ»ØÊÜµ½µÄÉËº¦
-	unsigned int BattleSuffer(unsigned int damege);
-	//ËÀÁËÂğ
+
+	//æ­»äº†å—
 	bool IsDead(void);
-	//½«µ±Ç°ÉúÃüÖµÉèÖÃ³ÉÉúÃüÖµÉÏÏŞ²¢·µ»Ø
+	//å°†å½“å‰ç”Ÿå‘½å€¼è®¾ç½®æˆç”Ÿå‘½å€¼ä¸Šé™å¹¶è¿”å›
 	virtual unsigned int ResetCurrentHealth(void) = 0;
-	//»ñÈ¡µ±Ç°ÉúÃü
+	//è·å–å½“å‰ç”Ÿå‘½
 	unsigned int GetCurrentHealth(void);
-	//ÎÒÊÇË­?·µ»ØÃû×Ö×Ö·û´®
-	std::string & WhoAmI(void);
-	//ÎÒÊÇË­?¸³ÓèÃû×Ö
-	void WhoAmI(const char * name);
-	//¼ÆËã¹¥»÷Á¦ Ò»´Îº¯Êı ËæµÈ¼¶±ä»¯ k¾ö¶¨·ù¶È
-	virtual unsigned int GetAtk(double k) = 0;
-	//»ñÈ¡µÈ¼¶
-	unsigned int GetLevel(void);
-	//ÉèÖÃµÈ¼¶
-	void SetLevel(unsigned int level);
-	//»ñÈ¡ÉúÃüÖµÉÏÏŞ
+	//è·å–ç”Ÿå‘½å€¼ä¸Šé™
 	unsigned int GetMaxHealth(void);
+	//å‡å°‘ç”Ÿå‘½å€¼ï¼Œè¿”å›ç°åœ¨ç”Ÿå‘½å€¼
+	unsigned int DecreaseHealth(unsigned int unDamage);
+	//å¢åŠ ç”Ÿå‘½å€¼ï¼Œè¿”å›ç°åœ¨ç”Ÿå‘½å€¼
+	unsigned int IncreaseHealth(unsigned int unHeal);
+
+	//æˆ‘æ˜¯è°?è¿”å›åå­—å­—ç¬¦ä¸²
+	std::string & GetName(void);
+	//æˆ‘æ˜¯è°?èµ‹äºˆåå­—
+	void SetName(const char * name);
+
+	//è·å–ç­‰çº§
+	unsigned int GetLevel(void);
+	//è®¾ç½®ç­‰çº§
+	void SetLevel(unsigned int level);
+
+	//è·å–æ€»æ”»å‡»åŠ›(åŠ æˆå
+	unsigned int GetAtk(void);
+	//è®¾ç½®æ”»å‡»åŠ›åŠ æˆï¼ˆå¯¹äºåŸºç¡€æ”»å‡»åŠ›
+	void SetAtkBonus(double dAtkBonus);
+	//åˆ·æ–°ç­‰çº§ç›¸å…³çš„åŸºç¡€æ”»å‡»åŠ›
+	virtual unsigned int UpdateBasicAtk(void) = 0;
+
+	//è·å–æ€»é˜²å¾¡åŠ›(åŠ æˆå
+	unsigned int GetDef(void);
+	//è®¾ç½®é˜²å¾¡åŠ›åŠ æˆï¼ˆå¯¹äºåŸºç¡€é˜²å¾¡åŠ›
+	void SetDefBonus(double dDefBonus);
+	//åˆ·æ–°ç­‰çº§ç›¸å…³çš„åŸºç¡€é˜²å¾¡åŠ›
+	virtual unsigned int UpdateBasicDef(void) = 0;
 };
 
 class Player : public Body
 {
 private:
-	//×°±¸µÄ¹¥»÷Á¦¼Ó³É ÀıÈç x1.001
-	double atkModifier;
-	//³ÖÓĞ¾­ÑéÖµ
-	unsigned long exp;
+	//æŒæœ‰ç»éªŒå€¼
+	unsigned long ulExp;
 private:
-
-public:
-	Player();
-	//¸ù¾İµÈ¼¶ÉèÖÃÉúÃüÖµÉÏÏŞ
-	void SetMaxHealth(void);
-	//½«µ±Ç°ÉúÃüÖµÉèÖÃµ½ÉúÃüÖµÉÏÏŞ(³õÊ¼»¯
-	unsigned int ResetCurrentHealth(void);
-	//»ñÈ¡¹¥»÷Á¦
-	unsigned int GetAtk(double k);
-	//ÉèÖÃ¹¥»÷Á¦¼Ó³É
-	void SetAtkModifier(double atkModifier);
-	//»ñÈ¡¹¥»÷Á¦¼Ó³É
-	double GetAtkModifier(void);
-	//Éı¼¶ ·µ»ØÉı¼¶ºóµÄµÈ¼¶
+	//å‡çº§ è¿”å›å‡çº§åçš„ç­‰çº§
 	unsigned int LevelUp(void);
-	//Èô¾­Ñé×ã¹»ÔòÉı¼¶·µ»ØÕæ£¬·ñÔò²»Éı¼¶·µ»Ø¼Ù
+	//è‹¥ç»éªŒè¶³å¤Ÿåˆ™å‡çº§è¿”å›çœŸï¼Œå¦åˆ™ä¸å‡çº§è¿”å›å‡
 	bool IsAbleToLevelUp(void);
-	//·µ»ØÉı¼¶ËùĞè¾­ÑéÖµ
-	unsigned long ExpNeed(void);
-	//·µ»Øµ±Ç°¾­ÑéÖµ
-	unsigned long ExpHave(void);
-	//»ñµÃ¾­Ñé ·µ»Øµ±Ç°¾­Ñé
+public:
+	//é»˜è®¤æ„é€ å‡½æ•°åŠ æˆ1ç­‰çº§1ç»éªŒ0
+	Player();
+
+	//æ ¹æ®ç­‰çº§è®¾ç½®ç”Ÿå‘½å€¼ä¸Šé™
+	void SetMaxHealth(void);
+	//å°†å½“å‰ç”Ÿå‘½å€¼è®¾ç½®åˆ°ç”Ÿå‘½å€¼ä¸Šé™(åˆå§‹åŒ–
+	unsigned int ResetCurrentHealth(void);
+
+	//è¿”å›å‡çº§æ‰€éœ€ç»éªŒå€¼
+	unsigned long GetExpNeed(void);
+	//è¿”å›å½“å‰ç»éªŒå€¼
+	unsigned long GetExpOwn(void);
+
+	//è·å¾—ç»éªŒ è¿”å›å½“å‰ç»éªŒ
 	unsigned long AwardExp(unsigned long quantity);
+	//æ£€æµ‹æ˜¯å¦å¯ä»¥å‡çº§å¹¶ä¸”å‡çº§ï¼Œè¿”å›0æ²¡æœ‰å‡çº§ï¼Œæ­£å¸¸è¿”å›å‡çº§åç­‰çº§
+	unsigned int CheckLevelUp(void);
+
+	//åˆ·æ–°ç­‰çº§ç›¸å…³çš„åŸºç¡€æ”»å‡»åŠ›
+	unsigned int UpdateBasicAtk(void);
+	//åˆ·æ–°ç­‰çº§ç›¸å…³çš„åŸºç¡€é˜²å¾¡åŠ›
+	unsigned int UpdateBasicDef(void);
 };
 
 class Monster : public Body
 {
 private:
-	//µôÂäµÄ¾­ÑéÖµ
-	unsigned long expDrop;
+	//æ‰è½çš„ç»éªŒå€¼
+	unsigned long ulExpDrop;
+private:
+
 public:
-	//»ñÈ¡¹¥»÷Á¦
-	unsigned int GetAtk(double k);
-	//Ä£·ÂÍæ¼Ò ¸ù¾İµÈ¼¶(ÉèÏë)ÉèÖÃÉúÃüÖµÉÏÏŞ²¢ÇÒ·µ»Ø
-	void SetMaxHealth(void);
-	//°´ÕÕÊıÖµÉèÖÃÉúÃüÖµÉÏÏŞ
+	//é»˜è®¤æ„é€ ç­‰çº§1ç”Ÿå‘½64ç»éªŒæ‰è½1024
+	Monster();
+	//æ–¹ä¾¿å¤åˆ¶æ€ªç‰©å§
+	Monster(Monster &right);
+
+	//æŒ‰ç…§æ•°å€¼è®¾ç½®ç”Ÿå‘½å€¼ä¸Šé™
 	void SetMaxHealth(unsigned int maxHealth);
-	//½«µ±Ç°ÉúÃüÖµÉèÖÃµ½ÉúÃüÖµÉÏÏŞ(³õÊ¼»¯
+	//å°†å½“å‰ç”Ÿå‘½å€¼è®¾ç½®åˆ°ç”Ÿå‘½å€¼ä¸Šé™(åˆå§‹åŒ–
 	unsigned int ResetCurrentHealth(void);
-	//»ñÈ¡¿ÉÒÔµôÂäµÄ¾­ÑéÖµ
+
+	//è·å–å¯ä»¥æ‰è½çš„ç»éªŒå€¼
 	unsigned long GetExpDrop(void);
-	//ÉèÖÃ¿ÉÒÔµôÂäµÄ¾­ÑéÖµ
+	//è®¾ç½®å¯ä»¥æ‰è½çš„ç»éªŒå€¼
 	void SetExpDrop(unsigned long expDrop);
-};
 
-/*
-µ¥ÀıÄ£Ê½µÄÕ½³¡£¬ÓÎÏ·Ö»ÄÜ´æÔÚÒ»¸öÕ½³¡£¡
-Í¨¹ıCreateBattlefield()À´´´½¨»òÕßµÃµ½µ±Ç°Õ½³¡£¬Õ½¶·½áÊøºóÒªÊÖ¶¯ÊÍ·Å¡£
-Êı¾İ½áËãÔÚÕâ¸öÀàÖĞ½øĞĞ
-*/
-class Battlefield
-{
-private:
-	Battlefield()
-	{
-	}
-	//Õ½³¡ÖĞµÄÍæ¼Ò
-	Player * plr;
-	//Õ½³¡ÖĞµÄ¹ÖÎï
-	Monster * mst;
-	//ÊµÀı¶ÔÏóÖ¸Õë
-	static Battlefield * pBattlefield;
-	//"ÌáÊ¾¿ò"µÄÎÄ×ÖÁĞ±í
-	std::vector<std::string> vMessage;
-private:
-	//ÊÇ·ñÍæ¼ÒÊäÁË»òÕß¹ÖÎïËÀÁË
-	bool IsFinshed(void);
-	//´òÓ¡ÓÃÀ´·Ö¸ôÄÚÈİµÄĞĞ
-	void PrintLine(void);
-	//´òÓ¡Õ½¶·Ë«·½µÄ×´Ì¬
-	bool ShowState(void);
-	//´òÓ¡ÌáÊ¾¿òµÄ×îºó8Ìõ
-	bool ShowMessages(void);
-	//½«ÌáÊ¾·ÅÈëÌáÊ¾ÁĞ±í£¬ÉÏÏŞ64Ìõ
-	bool AddMessage(const char * str);
-	//»¥ÏàÉËº¦
-	bool AttackRound(void);
-	//»¥¶¯ »¥¶¯½áÊø·µ»Øfalse
-	bool Start_Interaction(void);
-	//Õ½³¡µÄÊı¾İÇé¿öÊÇ·ñ¿ÉÒÔ¿ªÕ½
-	bool Start_IsReady(void);
-public:
-
-public:
-	//µ¥Àı´´½¨Ò»¸öÕ½³¡
-	static Battlefield * CreateBattlefield(void);
-	//Ê²Ã´¶ÔÏó²Î¼ÓÁËÕ½¶·£¬×¢Òâ²»ÒªÌî´íÎ»ÖÃ
-	bool WhoseBattlefield(Player * player, Monster * monster);
-	//¿ªÊ¼Õ½¶· ·µ»ØtrueÎªÍæ¼ÒÊ¤Àû
-	bool Start(void);
+	//åˆ·æ–°ç­‰çº§ç›¸å…³çš„åŸºç¡€æ”»å‡»åŠ›
+	unsigned int UpdateBasicAtk(void);
+	//åˆ·æ–°ç­‰çº§ç›¸å…³çš„åŸºç¡€é˜²å¾¡åŠ›
+	unsigned int UpdateBasicDef(void);
 };
