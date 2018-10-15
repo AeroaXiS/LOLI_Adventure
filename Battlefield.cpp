@@ -4,7 +4,6 @@ Battlefield * Battlefield::pBattlefield = nullptr;
 
 bool Battlefield::IsReadyToStart(void)
 {
-	//至少有一个玩家和敌人
 	if (this->vpMonster.size() >= 1 && this->vpPlayer.size() >= 1)
 	{
 		return true;
@@ -18,17 +17,14 @@ bool Battlefield::IsPlayerWining(void)
 {
 	if (this->IsAllPlayerDead())
 	{
-		//玩家输了
 		return false;
 	}
 	else if (this->IsAllMonsterDead())
 	{
-		//玩家赢了
 		return true;
 	}
 	else
 	{
-		//能够到达这里并且没有人死是不可能的
 		std::cout << "[错误] 战场结算出现灵异事件" << std::endl;
 		WaitAnyKey();
 		return false;
@@ -56,22 +52,18 @@ void Battlefield::ShowMonsterIntro(void)
 
 void Battlefield::AwardPlayer(void)
 {
-	//掉落总经验
 	unsigned long ulExpSum = 0;
 	for (auto &pMonster : this->vpMonster)
 	{
 		ulExpSum += pMonster->GetExpDrop();
 	}
-	//加经验，经验每人一份
 	for (auto &pPlayer : this->vpPlayer)
 	{
-		//活人才有经验，死人跳过
 		if (pPlayer->IsDead()) continue;
 		pPlayer->AwardExp(ulExpSum);
 		this->ResetStringStream();
 		ss << "获得了 " << ulExpSum << " 点经验";
 		this->AddMessage();
-		//升级
 		if (pPlayer->CheckLevelUp() != 0)
 		{
 			this->ResetStringStream();
@@ -85,13 +77,11 @@ void Battlefield::Balance(void)
 {
 	if (IsPlayerWining())
 	{
-		//胜利
 		this->AddMessage("胜利了");
 		this->AwardPlayer();
 	}
 	else
 	{
-		//失败
 		this->AddMessage("失败了");
 	}
 }
@@ -118,10 +108,8 @@ bool Battlefield::Interact_ActionDefense(Player * pPlayer_Sender)
 Monster * Battlefield::SelectMonster(void)
 {
 	UpdateAliveMonster();
-	//如果一个活的都没有，返回null
 	if (this->vpAliveMonster.size() == 0) return nullptr;
 
-	//选择的序号
 	unsigned int selected = 0;
 	std::cout << "选择攻击对象:" << std::endl;
 	std::cout << "[0]返回" << std::endl;
@@ -133,7 +121,6 @@ Monster * Battlefield::SelectMonster(void)
 		i++;
 		iter++;
 	}
-	//获取和过滤数字以外的按键，屏蔽超过实际怪物存在数量的按键，识别返回
 	while (true)
 	{
 		selected = WaitNumKey();
@@ -238,8 +225,7 @@ int Battlefield::ActionNormal(Action & a)
 
 int Battlefield::ActionDefense(Action & a)
 {
-	//暂时还是加血反馈一下
-	a.pbyVictim->IncreaseHealth(100);
+	//todo: 防御做法
 	this->ResetStringStream();
 	ss << a.pbySender->GetName() << "正在保护" << a.pbyVictim->GetName();
 	this->AddMessage();
@@ -386,7 +372,6 @@ bool Battlefield::ShowState(void)
 	using namespace std;
 	this->UpdateAlivePlayer();
 	this->UpdateAliveMonster();
-	//输出玩家的先
 	for (auto &pPlayer : this->vpAlivePlayer)
 	{
 		std::cout << pPlayer->GetName() << " LV:" << pPlayer->GetLevel()
@@ -396,7 +381,6 @@ bool Battlefield::ShowState(void)
 			<< pPlayer->GetMaxHealth() << std::endl;
 	}
 	this->PrintLine();
-	//怪物的
 	for (auto &pMonster : this->vpAliveMonster)
 	{
 		std::cout << pMonster->GetName() << " LV:" << pMonster->GetLevel()
@@ -411,9 +395,7 @@ bool Battlefield::ShowState(void)
 bool Battlefield::ShowMessage(unsigned int many)
 {
 	int delta;
-	//0条不输出
 	if (many == 0) return false;
-	//如果消息数量不足条
 	if (this->vMessage.size() <= many)
 	{
 		delta = this->vMessage.size();
@@ -450,8 +432,6 @@ bool Battlefield::AddMessage(void)
 
 bool Battlefield::FlushMessage(void)
 {
-	//std::vector<std::string> emptyVec;
-	//this->vMessage.swap(emptyVec);
 	this->vMessage.clear();
 	return true;
 }
